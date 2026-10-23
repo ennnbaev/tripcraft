@@ -1,0 +1,74 @@
+spring:
+  application:
+    name: tripcraft
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tripcraft
+    username: tripcraft
+    password: tripcraft
+
+  jpa:
+    hibernate:
+      ddl-auto: validate   # schema is owned by Flyway
+    open-in-view: false
+
+  flyway:
+    enabled: true
+
+  # ---- AI provider (OpenAI-compatible API) ----
+  # Switch provider with SPRING_PROFILES_ACTIVE=gemini | groq | openai
+  ai:
+    openai:
+      api-key: ${AI_API_KEY:missing}
+      chat:
+        options:
+          temperature: 0.3
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+app:
+  ai:
+    prompt-version: v1
+
+---
+spring:
+  config:
+    activate:
+      on-profile: gemini
+  ai:
+    openai:
+      base-url: https://generativelanguage.googleapis.com/v1beta/openai
+      chat:
+        completions-path: /chat/completions
+        options:
+          model: gemini-2.5-flash
+
+---
+spring:
+  config:
+    activate:
+      on-profile: groq
+  ai:
+    openai:
+      base-url: https://api.groq.com/openai
+      chat:
+        options:
+          model: openai/gpt-oss-120b
+
+---
+spring:
+  config:
+    activate:
+      on-profile: openai
+  ai:
+    openai:
+      chat:
+        options:
+          model: gpt-4o-mini
