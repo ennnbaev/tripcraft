@@ -24,13 +24,25 @@ tripcraft/
 └── docker-compose.yml PostgreSQL
 ```
 
-## Run locally
+## Run everything in Docker
+
+Requirements: Docker Desktop. Put your key into `.env` in the repo root (see `.env.example`), then:
+
+```bash
+docker compose up -d --build
+```
+
+Open http://localhost:3000. Postgres, the backend (profile from `SPRING_PROFILES_ACTIVE`, default `gemini`) and the frontend (nginx, proxies `/api` to the backend) run as containers. Without a key set `SPRING_PROFILES_ACTIVE=mock` in `.env`.
+
+Useful commands: `docker compose logs -f backend`, `docker compose down` (data stays in the `pgdata` volume), `docker compose up -d --build` after code changes.
+
+## Run locally (development)
 
 Requirements: JDK 21, Node 22+ (Vite 8 does not run on Node 21), Docker. Maven is not needed: use the wrapper `./mvnw`.
 
 ```bash
-# 1. Database
-docker compose up -d
+# 1. Database only
+docker compose up -d postgres
 
 # 2. Backend (http://localhost:8080)
 cd backend

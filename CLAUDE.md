@@ -12,6 +12,6 @@ Read `docs/PRD.md` first; it is the source of truth for features, API, data mode
 - Frontend: TypeScript, Tailwind, TanStack Query for server state, API calls via `src/api/client.ts`.
 
 ## Commands
-- DB: `docker compose up -d`
+- Whole app in Docker: `docker compose up -d --build` → http://localhost:3000. DB only (for dev): `docker compose up -d postgres`
 - Backend: `cd backend && ./mvnw spring-boot:run` (needs `SPRING_PROFILES_ACTIVE`; `mock` works without `AI_API_KEY`). Tests: `./mvnw test`
 - Frontend (Node 22+): `cd frontend && npm run dev`, build check: `npm run build`
