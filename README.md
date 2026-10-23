@@ -51,7 +51,7 @@ Open http://localhost:5173. The footer shows "Backend: UP" when everything is wi
 | Profile | Provider | Model | Key |
 |---|---|---|---|
 | `mock` | Built-in fake LLM (dev only), placeholder places | `mock-planner` | not needed |
-| `gemini` | Google Gemini (OpenAI-compatible endpoint) | `gemini-2.5-flash` | `AI_API_KEY` |
+| `gemini` | Google Gemini (OpenAI-compatible endpoint) | `gemini-3.8-flash` | `AI_API_KEY` |
 | `groq` | Groq | `openai/gpt-oss-120b` | `AI_API_KEY` |
 | `openai` | OpenAI | `gpt-4o-mini` | `AI_API_KEY` |
 
