@@ -2,6 +2,10 @@ spring:
   application:
     name: tripcraft
 
+  # Local secrets: AI_API_KEY can live in the repo-root .env (git-ignored) instead of an exported variable
+  config:
+    import: optional:file:.env[.properties],optional:file:../.env[.properties]
+
   datasource:
     url: jdbc:postgresql://localhost:5432/tripcraft
     username: tripcraft
@@ -72,7 +76,7 @@ spring:
       chat:
         completions-path: /chat/completions
         options:
-          model: gemini-3.8-flash
+          model: gemini-3.5-flash-lite
 app:
   ai:
     provider: gemini

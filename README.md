@@ -35,7 +35,7 @@ docker compose up -d
 # 2. Backend (http://localhost:8080)
 cd backend
 export SPRING_PROFILES_ACTIVE=mock     # no key needed; or gemini / groq / openai
-# export AI_API_KEY=your-key           # required for gemini / groq / openai
+# AI_API_KEY: put it in the repo-root .env (see .env.example) or export it
 ./mvnw spring-boot:run
 
 # 3. Frontend (http://localhost:5173)
@@ -51,9 +51,11 @@ Open http://localhost:5173. The footer shows "Backend: UP" when everything is wi
 | Profile | Provider | Model | Key |
 |---|---|---|---|
 | `mock` | Built-in fake LLM (dev only), placeholder places | `mock-planner` | not needed |
-| `gemini` | Google Gemini (OpenAI-compatible endpoint) | `gemini-3.8-flash` | `AI_API_KEY` |
+| `gemini` | Google Gemini (OpenAI-compatible endpoint) | `gemini-3.5-flash-lite` | `AI_API_KEY` |
 | `groq` | Groq | `openai/gpt-oss-120b` | `AI_API_KEY` |
 | `openai` | OpenAI | `gpt-4o-mini` | `AI_API_KEY` |
+
+Gemini model choice (Oct 2026): `gemini-2.5-flash` is closed to new API users, `gemini-3.8-flash` took 2+ minutes per itinerary on the free tier, `gemini-3.6-flash` about 23 s, `gemini-3.5-flash-lite` about 6 s. Change the model in `application.yml` if you want to compare.
 
 The mock profile still goes through Spring AI `ChatClient`, so logging to `ai_requests` and the Stats page work the same way.
 
