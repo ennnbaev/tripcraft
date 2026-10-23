@@ -227,23 +227,23 @@ PostgreSQL 17              LLM API (OpenAI-compatible)
 | # | Задача | Зависит от | Готово, когда |
 |---|---|---|---|
 | T1 | ✅ Каркас проекта: backend, frontend, Docker, миграция V1 | — | `GET /api/health` отвечает, фронт показывает «UP» |
-| T2 | `ChatClient` по профилям gemini / groq / openai, проверочный вызов LLM | T1 | Запрос уходит к выбранному провайдеру и возвращает текст; ключ не попадает в логи |
-| T3 | Records `Itinerary`, `Day`, `Activity`, enum `Slot`, `Category` + Bean Validation | T1 | Unit-тесты валидации проходят |
-| T4 | Шаблоны `itinerary-system`, `itinerary-generate`, `day-regenerate` в `prompts/`; версия из `app.ai.prompt-version` | T2, T3 | Шаблоны рендерятся с переменными в unit-тесте |
-| T5 | `ItineraryAiService`: `.entity(Itinerary.class)`, проверка числа дней, 1 retry, ошибки 502 / 429 | T4 | Провайдер с битым JSON → retry → 502 с понятным текстом |
-| T6 | `AiRequestLogger`: строка в `ai_requests` на каждый вызов (включая retry) | T5 | В таблице есть SUCCESS / INVALID_JSON / ERROR с токенами и latency |
-| T7 | Сущность `Trip` (JSONB), репозиторий, демо-пользователь (миграция V2), `TripService` | T1 | Itinerary сохраняется и читается из JSONB без потерь |
-| T8 | `POST / GET / DELETE /api/trips`, валидация формы F1, единый формат ошибок `@RestControllerAdvice` | T7 | 400 с указанием поля при невалидном вводе, 404 при неизвестном id |
-| T9 | Генерация маршрута в `POST /api/trips`: вызов LLM, сохранение, логирование | T5, T6, T8 | «Tbilisi, 3 дня, MEDIUM, FOOD + HISTORY» даёт 3 дня, цены и бюджет |
-| T10 | `POST /api/trips/{id}/days/{n}/regenerate` | T9 | Меняется только день n, бюджет пересчитан, при ошибке маршрут не меняется |
-| T11 | Frontend: API-слой (типы, TanStack Query), роутинг, форма новой поездки | T8 | Поездка создаётся из UI, ошибки валидации видны у полей |
-| T12 | Frontend: страница маршрута (карточки дней, слоты, бюджет, советы, дисклеймер), индикатор загрузки | T9, T11 | Маршрут читается на телефоне и на десктопе |
-| T13 | Frontend: «Regenerate day» с комментарием, список «Мои поездки» с удалением | T10, T12 | Сценарии F3–F5 проходят из UI |
-| T14 | Hardening: MockMvc-тесты, README со скриншотами, проверка трёх провайдеров, git init и push | T13 | Демо из раздела 15 проходит целиком |
-| T15 | (P1) Packing list (F7): шаблон, колонка `packing_list`, эндпоинт, блок в UI | T9 | Список по категориям на странице поездки |
-| T16 | (P1) Статистика (F8): `GET /api/stats`, страница `/stats` | T6 | Запросы, средняя latency, доля ошибок, токены по провайдерам |
+| T2 | ✅ `ChatClient` по профилям gemini / groq / openai, проверочный вызов LLM | T1 | Запрос уходит к выбранному провайдеру и возвращает текст; ключ не попадает в логи |
+| T3 | ✅ Records `Itinerary`, `Day`, `Activity`, enum `Slot`, `Category` + Bean Validation | T1 | Unit-тесты валидации проходят |
+| T4 | ✅ Шаблоны `itinerary-system`, `itinerary-generate`, `day-regenerate` в `prompts/`; версия из `app.ai.prompt-version` | T2, T3 | Шаблоны рендерятся с переменными в unit-тесте |
+| T5 | ✅ `ItineraryAiService`: `.entity(Itinerary.class)`, проверка числа дней, 1 retry, ошибки 502 / 429 | T4 | Провайдер с битым JSON → retry → 502 с понятным текстом |
+| T6 | ✅ `AiRequestLogger`: строка в `ai_requests` на каждый вызов (включая retry) | T5 | В таблице есть SUCCESS / INVALID_JSON / ERROR с токенами и latency |
+| T7 | ✅ Сущность `Trip` (JSONB), репозиторий, демо-пользователь (миграция V2), `TripService` | T1 | Itinerary сохраняется и читается из JSONB без потерь |
+| T8 | ✅ `POST / GET / DELETE /api/trips`, валидация формы F1, единый формат ошибок `@RestControllerAdvice` | T7 | 400 с указанием поля при невалидном вводе, 404 при неизвестном id |
+| T9 | ✅ Генерация маршрута в `POST /api/trips`: вызов LLM, сохранение, логирование | T5, T6, T8 | «Tbilisi, 3 дня, MEDIUM, FOOD + HISTORY» даёт 3 дня, цены и бюджет |
+| T10 | ✅ `POST /api/trips/{id}/days/{n}/regenerate` | T9 | Меняется только день n, бюджет пересчитан, при ошибке маршрут не меняется |
+| T11 | ✅ Frontend: API-слой (типы, TanStack Query), роутинг, форма новой поездки | T8 | Поездка создаётся из UI, ошибки валидации видны у полей |
+| T12 | ✅ Frontend: страница маршрута (карточки дней, слоты, бюджет, советы, дисклеймер), индикатор загрузки | T9, T11 | Маршрут читается на телефоне и на десктопе |
+| T13 | ✅ Frontend: «Regenerate day» с комментарием, список «Мои поездки» с удалением | T10, T12 | Сценарии F3–F5 проходят из UI |
+| T14 | 🟡 Hardening (тесты и README готовы; осталось: проверка с реальным ключом, скриншоты, push): MockMvc-тесты, README со скриншотами, проверка трёх провайдеров, git init и push | T13 | Демо из раздела 15 проходит целиком |
+| T15 | ✅ (P1) Packing list (F7): шаблон, колонка `packing_list`, эндпоинт, блок в UI | T9 | Список по категориям на странице поездки |
+| T16 | ✅ (P1) Статистика (F8): `GET /api/stats`, страница `/stats` | T6 | Запросы, средняя latency, доля ошибок, токены по провайдерам |
 | T17 | (P1) Streaming маршрута (F9, SSE) | T9 | Дни появляются по мере генерации |
-| T18 | (P1) Карта (F10): Leaflet + OpenStreetMap | T12 | Точки активностей на карте дня |
+| T18 | ✅ (P1) Карта (F10): Leaflet + OpenStreetMap | T12 | Точки активностей на карте дня |
 
 ## 15. Демо для отчёта (2–3 минуты)
 

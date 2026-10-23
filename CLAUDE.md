@@ -13,5 +13,5 @@ Read `docs/PRD.md` first; it is the source of truth for features, API, data mode
 
 ## Commands
 - DB: `docker compose up -d`
-- Backend: `cd backend && mvn spring-boot:run` (needs `SPRING_PROFILES_ACTIVE` and `AI_API_KEY`)
-- Frontend: `cd frontend && npm run dev`, build check: `npm run build`
+- Backend: `cd backend && ./mvnw spring-boot:run` (needs `SPRING_PROFILES_ACTIVE`; `mock` works without `AI_API_KEY`). Tests: `./mvnw test`
+- Frontend (Node 22+): `cd frontend && npm run dev`, build check: `npm run build`

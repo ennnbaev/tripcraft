@@ -1,15 +1,21 @@
 import { Route, Routes } from 'react-router-dom'
-import HomePage from './pages/HomePage'
+import Layout from './components/Layout'
+import NewTripPage from './pages/NewTripPage'
+import NotFoundPage from './pages/NotFoundPage'
+import StatsPage from './pages/StatsPage'
+import TripPage from './pages/TripPage'
+import TripsPage from './pages/TripsPage'
 
-// Routes from the PRD (to be implemented):
-//   /            -> new trip form
-//   /trips       -> my trips
-//   /trips/:id   -> itinerary view
-//   /stats       -> AI usage stats
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
+      <Route element={<Layout />}>
+        <Route path="/" element={<NewTripPage />} />
+        <Route path="/trips" element={<TripsPage />} />
+        <Route path="/trips/:id" element={<TripPage />} />
+        <Route path="/stats" element={<StatsPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
     </Routes>
   )
 }

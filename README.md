@@ -26,7 +26,7 @@ tripcraft/
 
 ## Run locally
 
-Requirements: JDK 21, Maven 3.9+, Node 20+, Docker.
+Requirements: JDK 21, Node 22+ (Vite 8 does not run on Node 21), Docker. Maven is not needed: use the wrapper `./mvnw`.
 
 ```bash
 # 1. Database
@@ -34,9 +34,9 @@ docker compose up -d
 
 # 2. Backend (http://localhost:8080)
 cd backend
-export SPRING_PROFILES_ACTIVE=gemini   # or groq / openai
-export AI_API_KEY=your-key
-mvn spring-boot:run
+export SPRING_PROFILES_ACTIVE=mock     # no key needed; or gemini / groq / openai
+# export AI_API_KEY=your-key           # required for gemini / groq / openai
+./mvnw spring-boot:run
 
 # 3. Frontend (http://localhost:5173)
 cd frontend
@@ -44,7 +44,32 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173 — the page shows "Backend: UP" when everything is wired.
+Open http://localhost:5173. The footer shows "Backend: UP" when everything is wired.
+
+### AI profiles
+
+| Profile | Provider | Model | Key |
+|---|---|---|---|
+| `mock` | Built-in fake LLM (dev only), placeholder places | `mock-planner` | not needed |
+| `gemini` | Google Gemini (OpenAI-compatible endpoint) | `gemini-2.5-flash` | `AI_API_KEY` |
+| `groq` | Groq | `openai/gpt-oss-120b` | `AI_API_KEY` |
+| `openai` | OpenAI | `gpt-4o-mini` | `AI_API_KEY` |
+
+The mock profile still goes through Spring AI `ChatClient`, so logging to `ai_requests` and the Stats page work the same way.
+
+### Tests
+
+```bash
+cd backend && ./mvnw test      # needs the docker Postgres; uses a separate "test" schema
+cd frontend && npm run build && npm run lint
+```
+
+## Where things are
+
+- API contract: [docs/API.md](docs/API.md)
+- Prompt templates: `backend/src/main/resources/prompts/*.st`
+- AI call, retry and logging: `backend/src/main/java/com/tripcraft/ai/`
+- Migrations: `backend/src/main/resources/db/migration/`
 
 ## Getting a free API key
 
