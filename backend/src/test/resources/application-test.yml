@@ -1,0 +1,11 @@
+# Tests run against the docker-compose Postgres, in their own schema, so dev data is untouched.
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tripcraft?currentSchema=test
+  flyway:
+    schemas: test
+    default-schema: test
+  jpa:
+    properties:
+      hibernate:
+        default_schema: test

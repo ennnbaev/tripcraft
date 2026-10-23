@@ -15,14 +15,35 @@ spring:
   flyway:
     enabled: true
 
+  # The UI is English: validation messages must not follow the JVM or browser locale
+  web:
+    locale: en
+    locale-resolver: fixed
+
   # ---- AI provider (OpenAI-compatible API) ----
-  # Switch provider with SPRING_PROFILES_ACTIVE=gemini | groq | openai
+  # Switch provider with SPRING_PROFILES_ACTIVE=gemini | groq | openai | mock
   ai:
+    model:
+      # Only the chat model is used; keep the other OpenAI clients off.
+      embedding: none
+      image: none
+      audio:
+        speech: none
+        transcription: none
+      moderation: none
     openai:
       api-key: ${AI_API_KEY:missing}
       chat:
         options:
           temperature: 0.3
+    # Built-in retry covers transient 5xx/network errors only (4xx, incl. 429, is not retried).
+    # Kept small so we don't burn free-tier quota.
+    retry:
+      max-attempts: 2
+      backoff:
+        initial-interval: 1s
+        multiplier: 2
+        max-interval: 5s
 
 server:
   port: 8080
@@ -36,6 +57,9 @@ management:
 app:
   ai:
     prompt-version: v1
+    provider: openai
+    model: ${spring.ai.openai.chat.options.model:gpt-4o-mini}
+    timeout: 60s
 
 ---
 spring:
@@ -49,6 +73,9 @@ spring:
         completions-path: /chat/completions
         options:
           model: gemini-2.5-flash
+app:
+  ai:
+    provider: gemini
 
 ---
 spring:
@@ -61,6 +88,9 @@ spring:
       chat:
         options:
           model: openai/gpt-oss-120b
+app:
+  ai:
+    provider: groq
 
 ---
 spring:
@@ -72,3 +102,21 @@ spring:
       chat:
         options:
           model: gpt-4o-mini
+app:
+  ai:
+    provider: openai
+
+---
+# Dev/demo profile: a fake ChatModel (com.tripcraft.ai.mock.MockChatModel) answers instead of a real LLM.
+# Lets you run the whole app without an API key.
+spring:
+  config:
+    activate:
+      on-profile: mock
+  ai:
+    model:
+      chat: mock   # disables the OpenAI chat auto-configuration
+app:
+  ai:
+    provider: mock
+    model: mock-planner
