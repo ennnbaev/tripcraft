@@ -8,13 +8,15 @@ import Field from '../components/form/Field'
 import InterestChips from '../components/form/InterestChips'
 import SegmentedControl from '../components/form/SegmentedControl'
 import Stepper from '../components/form/Stepper'
-import TextInput, { TextArea } from '../components/form/TextInput'
+import DateRangeField from '../components/form/DateRangeField'
+import Select, { type SelectOption } from '../components/form/Select'
+import { TextArea } from '../components/form/TextInput'
 import GenerationLoading, { type GenerationError } from '../components/generating/GenerationLoading'
 import Button from '../components/ui/Button'
 import Notice from '../components/ui/Notice'
 import { addDaysIso, todayIso, tripLength } from '../lib/dates'
 import { formatDateSpan, label, plural } from '../lib/format'
-import { MAX_LANGUAGE, MAX_NOTES, MAX_TRIP_DAYS, validateTrip, type FieldErrors } from '../lib/validation'
+import { MAX_NOTES, MAX_TRIP_DAYS, validateTrip, type FieldErrors } from '../lib/validation'
 import { BUDGET_LEVELS, PACES, type BudgetLevel, type Pace, type TripRequest } from '../types/api'
 
 const BUDGET_HINTS: Record<BudgetLevel, string> = {
@@ -22,6 +24,26 @@ const BUDGET_HINTS: Record<BudgetLevel, string> = {
   MEDIUM: 'A mix of cafés, restaurants and paid sights.',
   PREMIUM: 'Top restaurants, taxis and guided tours.',
 }
+
+// value is what the backend gets (an English name the model understands); hint is the native name
+const LANGUAGES: SelectOption[] = [
+  ['English', ''],
+  ['Russian', 'Русский'],
+  ['Ukrainian', 'Українська'],
+  ['Georgian', 'ქართული'],
+  ['Armenian', 'Հայերեն'],
+  ['German', 'Deutsch'],
+  ['French', 'Français'],
+  ['Spanish', 'Español'],
+  ['Italian', 'Italiano'],
+  ['Portuguese', 'Português'],
+  ['Polish', 'Polski'],
+  ['Turkish', 'Türkçe'],
+  ['Arabic', 'العربية'],
+  ['Chinese', '中文'],
+  ['Japanese', '日本語'],
+  ['Korean', '한국어'],
+].map(([value, hint]) => ({ value, label: value, hint: hint || undefined }))
 
 const PACE_HINTS: Record<Pace, string> = {
   RELAXED: '2–3 things a day, long breaks.',
@@ -213,35 +235,26 @@ export default function NewTripPage() {
               />
             </Field>
 
-            <Field className="tc-s3" label="Start date" htmlFor="f-start" messageId="f-start-msg" error={errors.startDate}>
-              <TextInput
-                id="f-start"
-                type="date"
-                min={todayIso()}
-                value={form.startDate}
-                onChange={(e) => update('startDate', e.target.value)}
-                aria-invalid={!!errors.startDate}
-                aria-describedby={errors.startDate ? 'f-start-msg' : undefined}
-              />
-            </Field>
-
             <Field
-              className="tc-s3"
-              label="End date"
-              htmlFor="f-end"
-              messageId="f-end-msg"
-              error={errors.endDate}
+              className="tc-s6"
+              label="Dates"
+              htmlFor="f-dates"
+              messageId="f-dates-msg"
+              error={errors.startDate ?? errors.endDate}
               hint={dateHint}
-              counter={errors.endDate ? undefined : `Up to ${MAX_TRIP_DAYS} days`}
+              counter={errors.startDate || errors.endDate ? undefined : `Up to ${MAX_TRIP_DAYS} days`}
             >
-              <TextInput
-                id="f-end"
-                type="date"
-                min={form.startDate || todayIso()}
-                value={form.endDate}
-                onChange={(e) => update('endDate', e.target.value)}
-                aria-invalid={!!errors.endDate}
-                aria-describedby="f-end-msg"
+              <DateRangeField
+                id="f-dates"
+                start={form.startDate}
+                end={form.endDate}
+                maxDays={MAX_TRIP_DAYS}
+                onChange={(start, end) => {
+                  update('startDate', start)
+                  update('endDate', end)
+                }}
+                invalid={!!(errors.startDate || errors.endDate)}
+                describedBy="f-dates-msg"
               />
             </Field>
 
@@ -308,15 +321,14 @@ export default function NewTripPage() {
               error={errors.language}
               hint="The app stays in English. Only the plan is translated."
             >
-              <TextInput
+              <Select
                 id="f-lang"
-                type="text"
-                maxLength={MAX_LANGUAGE}
-                placeholder="English"
+                value={form.language ?? 'English'}
+                options={LANGUAGES}
+                onChange={(v) => update('language', v)}
                 icon={<Languages className="tc-icon" aria-hidden />}
-                value={form.language ?? ''}
-                onChange={(e) => update('language', e.target.value.slice(0, MAX_LANGUAGE))}
-                aria-describedby="f-lang-help"
+                invalid={!!errors.language}
+                describedBy="f-lang-help"
               />
             </Field>
           </div>
