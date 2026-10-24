@@ -4,7 +4,11 @@ import type { ReactNode } from 'react'
 type Props = {
   label: string
   htmlFor?: string
-  /** small muted text after the label, e.g. "optional" */
+  /** id for the label element, for groups that use aria-labelledby */
+  labelId?: string
+  /** id of the help/error line, for aria-describedby on the control */
+  messageId?: string
+  /** small muted text after the label, e.g. "Optional" */
   labelNote?: string
   error?: string
   /** helper text under the control; replaced by the error when there is one */
@@ -15,7 +19,18 @@ type Props = {
   children: ReactNode
 }
 
-export default function Field({ label, htmlFor, labelNote, error, hint, counter, className = '', children }: Props) {
+export default function Field({
+  label,
+  htmlFor,
+  labelId,
+  messageId,
+  labelNote,
+  error,
+  hint,
+  counter,
+  className = '',
+  children,
+}: Props) {
   const labelContent = (
     <>
       {label}
@@ -25,26 +40,29 @@ export default function Field({ label, htmlFor, labelNote, error, hint, counter,
   return (
     <div className={`tc-field ${error ? 'tc-field--error' : ''} ${className}`}>
       {htmlFor ? (
-        <label htmlFor={htmlFor} className="tc-field__label">
+        <label htmlFor={htmlFor} id={labelId} className="tc-field__label">
           {labelContent}
         </label>
       ) : (
-        <span className="tc-field__label">{labelContent}</span>
+        <span id={labelId} className="tc-field__label">
+          {labelContent}
+        </span>
       )}
       {children}
       {error ? (
-        <div className="tc-field__help">
-          <p className="tc-field__error" role="alert">
-            <CircleAlert size={14} aria-hidden /> {error}
-          </p>
+        <div className="tc-field__help" id={messageId}>
+          <span className="tc-field__error" role="alert">
+            <CircleAlert className="tc-icon" aria-hidden />
+            {error}
+          </span>
           {counter && <span>{counter}</span>}
         </div>
       ) : (
         (hint || counter) && (
-          <p className="tc-field__help">
+          <span className="tc-field__help" id={messageId}>
             <span>{hint}</span>
             {counter && <span>{counter}</span>}
-          </p>
+          </span>
         )
       )}
     </div>

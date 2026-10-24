@@ -1,90 +1,129 @@
-import { Link } from 'react-router-dom'
-import { errorMessage } from '../api/client'
+import { Plus, RefreshCw, Sparkles } from 'lucide-react'
+import { useState } from 'react'
 import { useDeleteTrip, useTrips } from '../api/trips'
-import Alert from '../components/Alert'
-import { EmptyState, ErrorState, LoadingState } from '../components/StateViews'
-import { tripLength } from '../lib/dates'
-import { formatDateRange, formatDateTime } from '../lib/format'
+import TripListItem from '../components/trips/TripListItem'
+import { shortName } from '../components/trips/tripName'
+import { ButtonLink } from '../components/ui/Button'
+import EmptyState from '../components/ui/EmptyState'
+import Notice from '../components/ui/Notice'
+import Skeleton from '../components/ui/Skeleton'
+import { plural } from '../lib/format'
 import type { TripSummary } from '../types/api'
 
-export default function TripsPage() {
-  const { data: trips, isLoading, error, refetch } = useTrips()
-  const deleteTrip = useDeleteTrip()
+type Result = { tone: 'success' | 'error'; text: string }
 
-  const onDelete = (trip: TripSummary) => {
-    if (window.confirm(`Delete the trip to ${trip.destination}? This cannot be undone.`)) {
-      deleteTrip.mutate(trip.id)
-    }
+export default function TripsPage() {
+  const { data: trips, isLoading, isError, refetch, isFetching } = useTrips()
+  const deleteTrip = useDeleteTrip()
+  const [confirmId, setConfirmId] = useState<number | null>(null)
+  const [result, setResult] = useState<Result | null>(null)
+
+  const remove = (trip: TripSummary) => {
+    const short = shortName(trip.destination)
+    setConfirmId(null)
+    setResult(null)
+    // the row disappears at once (optimistic) and comes back if the request fails
+    deleteTrip.mutate(trip.id, {
+      onSuccess: () => setResult({ tone: 'success', text: `The ${short} trip was deleted.` }),
+      onError: () => setResult({ tone: 'error', text: `We couldn't delete the ${short} trip. Please try again.` }),
+    })
   }
 
+  const hasList = !!trips && trips.length > 0
+  const subtitle = isLoading
+    ? 'Loading your trips…'
+    : hasList
+      ? `${plural(trips.length, 'saved trip')}, newest first`
+      : isError
+        ? 'Something went wrong'
+        : 'Your saved plans will show up here'
+
   return (
-    <div>
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="tc-wrap" style={{ maxWidth: 880 }}>
+      <div className="tc-pagehead">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">My trips</h1>
-          <p className="mt-1 text-slate-600">Saved itineraries, newest first.</p>
+          <h1>My trips</h1>
+          <p>{subtitle}</p>
         </div>
-        <Link to="/" className="tc-btn tc-btn--primary">
-          + New trip
-        </Link>
+        {hasList && (
+          <ButtonLink to="/" variant="primary">
+            <Plus className="tc-icon" aria-hidden />
+            New trip
+          </ButtonLink>
+        )}
       </div>
 
-      {deleteTrip.isError && (
-        <div className="mt-6">
-          <Alert title="Couldn't delete the trip">{errorMessage(deleteTrip.error)}</Alert>
+      {result && (
+        <Notice tone={result.tone} className="mb-3">
+          {result.text}
+        </Notice>
+      )}
+
+      {isLoading && (
+        <div className="tc-triplist" role="status" aria-label="Loading your trips">
+          {[1, 2, 3].map((k) => (
+            <div key={k} className="tc-skelrow">
+              <Skeleton style={{ width: 72, height: 72, borderRadius: 12 }} />
+              <div className="grid gap-2">
+                <Skeleton style={{ height: 16, width: '40%' }} />
+                <Skeleton style={{ height: 12, width: '65%' }} />
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
-      <div className="mt-8">
-        {isLoading ? (
-          <LoadingState message="Loading your trips…" />
-        ) : error ? (
-          <ErrorState error={error} onRetry={() => refetch()} />
-        ) : !trips || trips.length === 0 ? (
-          <EmptyState
-            title="No trips yet"
-            text="Plan your first trip and it will show up here."
-            action={
-              <Link to="/" className="tc-btn tc-btn--primary">
-                Plan a trip
-              </Link>
-            }
-          />
-        ) : (
-          <ul className="grid gap-4 sm:grid-cols-2">
-            {trips.map((trip) => {
-              const days = tripLength(trip.startDate, trip.endDate)
-              const deleting = deleteTrip.isPending && deleteTrip.variables === trip.id
-              return (
-                <li key={trip.id} className={`card flex flex-col p-5 transition ${deleting ? 'opacity-50' : 'hover:shadow-md'}`}>
-                  <Link to={`/trips/${trip.id}`} className="group flex-1">
-                    <p className="text-lg font-semibold text-slate-900 group-hover:text-sky-700">{trip.destination}</p>
-                    <p className="mt-1 text-sm text-slate-600">
-                      {formatDateRange(trip.startDate, trip.endDate)} · {days} day{days === 1 ? '' : 's'}
-                    </p>
-                  </Link>
-                  <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
-                    <span className="text-xs text-slate-500">Created {formatDateTime(trip.createdAt)}</span>
-                    <div className="flex gap-1">
-                      <Link to={`/trips/${trip.id}`} className="tc-btn tc-btn--ghost tc-btn--sm">
-                        Open
-                      </Link>
-                      <button
-                        type="button"
-                        className="tc-btn tc-btn--ghost tc-btn--sm text-red-600 hover:bg-red-50 hover:text-red-700"
-                        onClick={() => onDelete(trip)}
-                        disabled={deleting}
-                      >
-                        {deleting ? 'Deleting…' : 'Delete'}
-                      </button>
-                    </div>
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
-        )}
-      </div>
+      {isError && !trips && (
+        <Notice
+          tone="error"
+          title="We couldn't load your trips"
+          actions={
+            <button
+              type="button"
+              className="tc-btn tc-btn--secondary tc-btn--sm"
+              onClick={() => refetch()}
+              disabled={isFetching}
+            >
+              <RefreshCw className={`tc-icon tc-icon-sm ${isFetching ? 'tc-spin' : ''}`} aria-hidden />
+              Try again
+            </button>
+          }
+        >
+          Check your connection and try again.
+        </Notice>
+      )}
+
+      {hasList && (
+        <ul className="tc-triplist m-0 list-none p-0">
+          {trips.map((t) => (
+            <li key={t.id}>
+              <TripListItem
+                trip={t}
+                confirming={confirmId === t.id}
+                onAsk={() => {
+                  setConfirmId(t.id)
+                  setResult(null)
+                }}
+                onCancel={() => setConfirmId(null)}
+                onDelete={() => remove(t)}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {trips && trips.length === 0 && (
+        <EmptyState
+          title="No trips yet"
+          text="Tell us where and when you're going, and your day-by-day plan will be saved here."
+          action={
+            <ButtonLink to="/" variant="primary">
+              <Sparkles className="tc-icon" aria-hidden />
+              Plan your first trip
+            </ButtonLink>
+          }
+        />
+      )}
     </div>
   )
 }

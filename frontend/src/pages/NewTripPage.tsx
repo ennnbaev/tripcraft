@@ -1,18 +1,33 @@
-import { useState, type FormEvent } from 'react'
+import { Languages, Sparkles } from 'lucide-react'
+import { useRef, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ApiError, errorMessage } from '../api/client'
+import { ApiError } from '../api/client'
 import { useCreateTrip } from '../api/trips'
-import Alert from '../components/Alert'
 import DestinationInput from '../components/form/DestinationInput'
 import Field from '../components/form/Field'
 import InterestChips from '../components/form/InterestChips'
 import SegmentedControl from '../components/form/SegmentedControl'
-import Spinner from '../components/Spinner'
+import Stepper from '../components/form/Stepper'
+import TextInput, { TextArea } from '../components/form/TextInput'
+import GenerationLoading, { type GenerationError } from '../components/generating/GenerationLoading'
+import Button from '../components/ui/Button'
+import Notice from '../components/ui/Notice'
 import { addDaysIso, todayIso, tripLength } from '../lib/dates'
-import { MAX_NOTES, MAX_TRIP_DAYS, validateTrip, type FieldErrors } from '../lib/validation'
-import { BUDGET_LEVELS, PACES, type TripRequest } from '../types/api'
+import { formatDateSpan, label, plural } from '../lib/format'
+import { MAX_LANGUAGE, MAX_NOTES, MAX_TRIP_DAYS, validateTrip, type FieldErrors } from '../lib/validation'
+import { BUDGET_LEVELS, PACES, type BudgetLevel, type Pace, type TripRequest } from '../types/api'
 
-const LANGUAGES = ['English', 'Russian', 'Ukrainian', 'Spanish', 'German', 'French', 'Italian', 'Polish']
+const BUDGET_HINTS: Record<BudgetLevel, string> = {
+  ECONOMY: 'Street food, public transport and free sights.',
+  MEDIUM: 'A mix of cafés, restaurants and paid sights.',
+  PREMIUM: 'Top restaurants, taxis and guided tours.',
+}
+
+const PACE_HINTS: Record<Pace, string> = {
+  RELAXED: '2–3 things a day, long breaks.',
+  BALANCED: '3–5 things a day.',
+  ACTIVE: '5–8 things a day, early starts.',
+}
 
 function initialForm(): TripRequest {
   const start = addDaysIso(todayIso(), 14)
@@ -29,198 +44,295 @@ function initialForm(): TripRequest {
   }
 }
 
+const isIsoDate = (d: string) => /^\d{4}-\d{2}-\d{2}$/.test(d)
+
+/** Copy for the Generating error state; 400s never get here (they go back to the form fields). */
+function generationError(err: unknown): GenerationError {
+  if (err instanceof ApiError) {
+    if (err.status === 429)
+      return {
+        title: 'The free AI limit is reached',
+        body: 'Please try again in a minute.',
+        code: `Error 429 · ${err.body.error}`,
+      }
+    if (err.status === 502)
+      return {
+        title: 'We couldn’t build a valid plan',
+        body: 'The AI answer didn’t pass our checks, even after a retry. Please try again.',
+        code: `Error 502 · ${err.body.error}`,
+      }
+    return {
+      title: 'Something went wrong',
+      body: 'The server couldn’t create the trip. Please try again.',
+      code: `Error ${err.status} · ${err.body.error}`,
+    }
+  }
+  return {
+    title: 'We can’t reach TripCraft',
+    body: 'Check your connection and that the backend is running, then try again.',
+    code: 'Network error · the request did not reach the server',
+  }
+}
+
+const isAbort = (err: unknown) => err instanceof DOMException && err.name === 'AbortError'
+
 export default function NewTripPage() {
   const navigate = useNavigate()
   const createTrip = useCreateTrip()
+  const abortRef = useRef<AbortController | null>(null)
   const [form, setForm] = useState<TripRequest>(initialForm)
-  const [errors, setErrors] = useState<FieldErrors>({})
   const [submitted, setSubmitted] = useState(false)
-  const busy = createTrip.isPending
+  // 400 details from the backend, shown under the matching fields until the user edits that field
+  const [serverErrors, setServerErrors] = useState<FieldErrors>({})
+
+  const clientErrors = validateTrip(form)
+  const errors: FieldErrors = submitted ? { ...serverErrors, ...clientErrors } : serverErrors
+  const otherServerErrors = Object.entries(serverErrors).filter(([key]) => !(key in form))
+  const hasServerErrors = Object.keys(serverErrors).length > 0
+  const showSummary = Object.keys(errors).length > 0 || otherServerErrors.length > 0
 
   const update = <K extends keyof TripRequest>(key: K, value: TripRequest[K]) => {
-    const next = { ...form, [key]: value }
-    setForm(next)
-    // after the first submit, re-validate live so errors disappear as the user fixes them
-    if (submitted) setErrors(validateTrip(next))
+    setForm((f) => ({ ...f, [key]: value }))
+    setServerErrors((e) => {
+      if (!(key in e)) return e
+      const next = { ...e }
+      delete next[key]
+      return next
+    })
+  }
+
+  const days = isIsoDate(form.startDate) && isIsoDate(form.endDate) ? tripLength(form.startDate, form.endDate) : 0
+  const validRange = days >= 1 && days <= MAX_TRIP_DAYS
+  const city = form.destination.split(',')[0].trim()
+  const planSummary = validRange && city ? `${plural(days, 'day')} in ${city}` : 'your days'
+
+  const send = () => {
+    const body: TripRequest = {
+      ...form,
+      destination: form.destination.trim(),
+      notes: form.notes?.trim() || null,
+      language: form.language?.trim() || 'English',
+    }
+    abortRef.current = new AbortController()
+    createTrip.mutate(
+      { body, signal: abortRef.current.signal },
+      {
+        onSuccess: (trip) => navigate(`/trips/${trip.id}`),
+        onError: (err) => {
+          if (isAbort(err)) return
+          if (err instanceof ApiError && err.status === 400) {
+            setServerErrors(err.details as FieldErrors)
+            createTrip.reset()
+          }
+        },
+      },
+    )
   }
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
     setSubmitted(true)
-    const found = validateTrip(form)
-    setErrors(found)
-    if (Object.keys(found).length > 0) return
-
-    const body: TripRequest = {
-      ...form,
-      destination: form.destination.trim(),
-      notes: form.notes?.trim() || null,
-    }
-    createTrip.mutate({ body }, {
-      onSuccess: (trip) => navigate(`/trips/${trip.id}`),
-      onError: (err) => {
-        if (err instanceof ApiError && err.status === 400) {
-          setErrors(err.details as FieldErrors)
-        }
-      },
-    })
+    setServerErrors({})
+    if (Object.keys(clientErrors).length > 0) return
+    send()
   }
 
-  const days = form.startDate && form.endDate ? tripLength(form.startDate, form.endDate) : 0
-  const serverError = createTrip.error
-  // 400 details for known fields are shown under the fields; anything else goes to the banner
-  const fieldDetails = serverError instanceof ApiError && serverError.status === 400 ? serverError.details : {}
-  const otherDetails = Object.entries(fieldDetails).filter(([key]) => !(key in form))
-  const showBanner =
-    serverError && (Object.keys(fieldDetails).length === 0 || otherDetails.length > 0)
+  // Cancel and "Edit trip": drop the request and show the form again with the same answers
+  const backToForm = () => {
+    abortRef.current?.abort()
+    createTrip.reset()
+  }
+
+  const failed = createTrip.isError && !isAbort(createTrip.error)
+  if (createTrip.isPending || failed) {
+    const summary = [
+      form.destination.trim(),
+      formatDateSpan(form.startDate, form.endDate),
+      plural(form.travelers, 'traveler'),
+      `${label(form.budgetLevel)} budget`,
+      form.interests.map(label).join(', '),
+    ].join(' · ')
+    return (
+      <GenerationLoading
+        heading={`Planning ${plural(days, 'day')} in ${city}`}
+        summary={summary}
+        error={failed ? generationError(createTrip.error) : null}
+        onCancel={backToForm}
+        onRetry={send}
+        onEdit={backToForm}
+      />
+    )
+  }
+
+  const dateHint = validRange ? `${plural(days, 'day')} · ${formatDateSpan(form.startDate, form.endDate)}` : 'Choose your dates'
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <h1 className="text-3xl font-bold tracking-tight">Plan a new trip</h1>
-      <p className="mt-2 text-slate-600">
-        Tell us where and when you are going. TripCraft builds a day-by-day plan with places, times and prices.
-      </p>
-
-      <form onSubmit={onSubmit} noValidate className="card mt-8 space-y-6 p-6 sm:p-8">
-        <Field label="Destination" htmlFor="destination" error={errors.destination}>
-          <DestinationInput
-            id="destination"
-            value={form.destination}
-            onChange={(v) => update('destination', v)}
-            invalid={!!errors.destination}
-            disabled={busy}
-            autoFocus
-          />
-        </Field>
-
-        <div className="grid gap-6 sm:grid-cols-2">
-          <Field label="Start date" htmlFor="startDate" error={errors.startDate}>
-            <input
-              id="startDate"
-              type="date"
-              className={`input ${errors.startDate ? 'input-error' : ''}`}
-              min={todayIso()}
-              value={form.startDate}
-              onChange={(e) => update('startDate', e.target.value)}
-              disabled={busy}
-            />
-          </Field>
-          <Field
-            label="End date"
-            htmlFor="endDate"
-            error={errors.endDate}
-            hint={days > 0 ? `${days} day${days === 1 ? '' : 's'} (max ${MAX_TRIP_DAYS})` : undefined}
-          >
-            <input
-              id="endDate"
-              type="date"
-              className={`input ${errors.endDate ? 'input-error' : ''}`}
-              min={form.startDate || todayIso()}
-              value={form.endDate}
-              onChange={(e) => update('endDate', e.target.value)}
-              disabled={busy}
-            />
-          </Field>
+    <div className="tc-hero tc-deep">
+      <div className="tc-hero__inner">
+        <div className="tc-hero__art" aria-hidden>
+          <i style={{ width: 88, height: 120, background: 'var(--coral)' }} />
+          <i style={{ width: 64, height: 64, background: 'var(--sun)', borderRadius: '50%' }} />
+          <i style={{ width: 112, height: 160, background: 'var(--mint)' }} />
+          <i style={{ width: 56, height: 96, background: 'var(--sky)' }} />
         </div>
+        <h1>
+          Where to <em>next?</em>
+        </h1>
+        <p className="tc-hero__lead">
+          Tell us where, when and what you love. We'll plan the days for you, with times, places and estimated prices.
+        </p>
 
-        <div className="grid gap-6 sm:grid-cols-2">
-          <Field label="Travelers" htmlFor="travelers" error={errors.travelers}>
-            <input
-              id="travelers"
-              type="number"
-              min={1}
-              max={10}
-              className={`input ${errors.travelers ? 'input-error' : ''}`}
-              value={Number.isNaN(form.travelers) ? '' : form.travelers}
-              onChange={(e) => update('travelers', e.target.valueAsNumber)}
-              disabled={busy}
-            />
-          </Field>
-          <Field label="Itinerary language" htmlFor="language" error={errors.language}>
-            <select
-              id="language"
-              className="input"
-              value={form.language ?? 'English'}
-              onChange={(e) => update('language', e.target.value)}
-              disabled={busy}
-            >
-              {LANGUAGES.map((l) => (
-                <option key={l}>{l}</option>
-              ))}
-            </select>
-          </Field>
-        </div>
+        <form className="tc-planner" aria-labelledby="planner-title" noValidate onSubmit={onSubmit}>
+          <h2 id="planner-title" className="sr-only">
+            New trip
+          </h2>
 
-        <Field label="Budget" error={errors.budgetLevel}>
-          <SegmentedControl
-            name="Budget"
-            options={BUDGET_LEVELS}
-            value={form.budgetLevel}
-            onChange={(v) => update('budgetLevel', v)}
-            disabled={busy}
-          />
-        </Field>
-
-        <Field label="Pace" error={errors.pace}>
-          <SegmentedControl
-            name="Pace"
-            options={PACES}
-            value={form.pace}
-            onChange={(v) => update('pace', v)}
-            disabled={busy}
-          />
-        </Field>
-
-        <Field label="Interests" error={errors.interests}>
-          <InterestChips value={form.interests} onChange={(v) => update('interests', v)} disabled={busy} />
-        </Field>
-
-        <Field
-          label="Notes (optional)"
-          htmlFor="notes"
-          error={errors.notes}
-          hint={`${form.notes?.length ?? 0}/${MAX_NOTES}`}
-        >
-          <textarea
-            id="notes"
-            rows={3}
-            className={`input resize-y ${errors.notes ? 'input-error' : ''}`}
-            placeholder="Vegetarian, traveling with kids, no early mornings…"
-            value={form.notes ?? ''}
-            onChange={(e) => update('notes', e.target.value)}
-            disabled={busy}
-          />
-        </Field>
-
-        {showBanner && (
-          <Alert title={serverError instanceof ApiError && serverError.status === 429 ? 'Rate limit' : "Couldn't generate the trip"}>
-            {errorMessage(serverError)}
-            {otherDetails.length > 0 && (
-              <ul className="mt-1 list-disc pl-5">
-                {otherDetails.map(([key, msg]) => (
-                  <li key={key}>{msg}</li>
-                ))}
-              </ul>
-            )}
-          </Alert>
-        )}
-
-        {busy && (
-          <Alert tone="info" title="Building your itinerary…">
-            The AI is planning your days. This usually takes 10–30 seconds, please keep this page open.
-          </Alert>
-        )}
-
-        <button type="submit" className="tc-btn tc-btn--primary w-full py-3 text-base" disabled={busy}>
-          {busy ? (
-            <>
-              <Spinner className="h-4 w-4" /> Generating…
-            </>
-          ) : (
-            'Generate itinerary'
+          {showSummary && (
+            <Notice tone="error" title="Check the highlighted fields">
+              {hasServerErrors
+                ? 'The server didn’t accept some answers. Fix them and try again.'
+                : 'Nothing was sent yet. Fix them and try again.'}
+              {otherServerErrors.length > 0 && (
+                <ul className="mt-1 list-disc pl-5">
+                  {otherServerErrors.map(([key, msg]) => (
+                    <li key={key}>{msg}</li>
+                  ))}
+                </ul>
+              )}
+            </Notice>
           )}
-        </button>
-      </form>
+
+          <div className="tc-form">
+            <Field className="tc-s6" label="Destination" htmlFor="f-dest" messageId="f-dest-msg" error={errors.destination}>
+              <DestinationInput
+                id="f-dest"
+                value={form.destination}
+                onChange={(v) => update('destination', v)}
+                invalid={!!errors.destination}
+                describedBy={errors.destination ? 'f-dest-msg' : undefined}
+              />
+            </Field>
+
+            <Field className="tc-s3" label="Start date" htmlFor="f-start" messageId="f-start-msg" error={errors.startDate}>
+              <TextInput
+                id="f-start"
+                type="date"
+                min={todayIso()}
+                value={form.startDate}
+                onChange={(e) => update('startDate', e.target.value)}
+                aria-invalid={!!errors.startDate}
+                aria-describedby={errors.startDate ? 'f-start-msg' : undefined}
+              />
+            </Field>
+
+            <Field
+              className="tc-s3"
+              label="End date"
+              htmlFor="f-end"
+              messageId="f-end-msg"
+              error={errors.endDate}
+              hint={dateHint}
+              counter={errors.endDate ? undefined : `Up to ${MAX_TRIP_DAYS} days`}
+            >
+              <TextInput
+                id="f-end"
+                type="date"
+                min={form.startDate || todayIso()}
+                value={form.endDate}
+                onChange={(e) => update('endDate', e.target.value)}
+                aria-invalid={!!errors.endDate}
+                aria-describedby="f-end-msg"
+              />
+            </Field>
+
+            <Field className="tc-s3" label="Travelers" labelId="f-trav-l" error={errors.travelers} hint="1 to 10 people">
+              <Stepper
+                labelledBy="f-trav-l"
+                value={form.travelers}
+                min={1}
+                max={10}
+                onChange={(v) => update('travelers', v)}
+                format={(n) => plural(n, 'traveler')}
+                decrementLabel="Fewer travelers"
+                incrementLabel="More travelers"
+              />
+            </Field>
+
+            <Field className="tc-s5" label="Budget" labelId="f-budget-l" error={errors.budgetLevel}>
+              <SegmentedControl
+                labelledBy="f-budget-l"
+                options={BUDGET_LEVELS}
+                value={form.budgetLevel}
+                onChange={(v) => update('budgetLevel', v)}
+              />
+              <span className="tc-seg__hint">{BUDGET_HINTS[form.budgetLevel]}</span>
+            </Field>
+
+            <Field className="tc-s4" label="Pace" labelId="f-pace-l" error={errors.pace}>
+              <SegmentedControl labelledBy="f-pace-l" options={PACES} value={form.pace} onChange={(v) => update('pace', v)} />
+              <span className="tc-seg__hint">{PACE_HINTS[form.pace]}</span>
+            </Field>
+
+            <div className="tc-s12" role="group" aria-labelledby="f-int-l">
+              <Field label="Interests" labelId="f-int-l" labelNote="Pick at least one" error={errors.interests}>
+                <InterestChips value={form.interests} onChange={(v) => update('interests', v)} />
+              </Field>
+            </div>
+
+            <Field
+              className="tc-s8"
+              label="Notes"
+              labelNote="Optional"
+              htmlFor="f-notes"
+              messageId="f-notes-count"
+              error={errors.notes}
+              hint="We pass this to the planner as is."
+              counter={`${form.notes?.length ?? 0} / ${MAX_NOTES}`}
+            >
+              <TextArea
+                id="f-notes"
+                rows={3}
+                maxLength={MAX_NOTES}
+                placeholder="Anything we should know? Dietary needs, must-sees, mobility."
+                value={form.notes ?? ''}
+                onChange={(e) => update('notes', e.target.value.slice(0, MAX_NOTES))}
+                aria-describedby="f-notes-count"
+              />
+            </Field>
+
+            <Field
+              className="tc-s4"
+              label="Itinerary language"
+              htmlFor="f-lang"
+              messageId="f-lang-help"
+              error={errors.language}
+              hint="The app stays in English. Only the plan is translated."
+            >
+              <TextInput
+                id="f-lang"
+                type="text"
+                maxLength={MAX_LANGUAGE}
+                placeholder="English"
+                icon={<Languages className="tc-icon" aria-hidden />}
+                value={form.language ?? ''}
+                onChange={(e) => update('language', e.target.value.slice(0, MAX_LANGUAGE))}
+                aria-describedby="f-lang-help"
+              />
+            </Field>
+          </div>
+
+          <div className="tc-planner__foot">
+            <p>
+              <Sparkles className="tc-icon" aria-hidden />
+              We'll plan {planSummary}. It usually takes 5–30 seconds.
+            </p>
+            <Button type="submit">
+              <Sparkles className="tc-icon" aria-hidden />
+              Plan my trip
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

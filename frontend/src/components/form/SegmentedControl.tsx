@@ -1,29 +1,44 @@
 import { label as toLabel } from '../../lib/format'
 
 type Props<T extends string> = {
-  name: string
+  /** id of the visible label element */
+  labelledBy: string
   options: readonly T[]
   value: T
   onChange: (value: T) => void
   disabled?: boolean
 }
 
-export default function SegmentedControl<T extends string>({ name, options, value, onChange, disabled }: Props<T>) {
+/** Pill radio group (tc-seg); arrow keys move the selection like native radios. */
+export default function SegmentedControl<T extends string>({ labelledBy, options, value, onChange, disabled }: Props<T>) {
+  const move = (group: HTMLElement, step: number) => {
+    const index = (options.indexOf(value) + step + options.length) % options.length
+    onChange(options[index])
+    group.querySelectorAll('button')[index]?.focus()
+  }
   return (
-    <div role="radiogroup" aria-label={name} className="grid grid-flow-col auto-cols-fr rounded-xl bg-slate-100 p-1">
+    <div
+      className="tc-seg"
+      role="radiogroup"
+      aria-labelledby={labelledBy}
+      onKeyDown={(e) => {
+        const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key]
+        if (!step) return
+        e.preventDefault()
+        move(e.currentTarget, step)
+      }}
+    >
       {options.map((opt) => {
-        const active = opt === value
+        const checked = opt === value
         return (
           <button
             key={opt}
             type="button"
             role="radio"
-            aria-checked={active}
+            aria-checked={checked}
+            tabIndex={checked ? 0 : -1}
             disabled={disabled}
             onClick={() => onChange(opt)}
-            className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed ${
-              active ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'
-            }`}
           >
             {toLabel(opt)}
           </button>

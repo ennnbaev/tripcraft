@@ -114,15 +114,3 @@
   }
 }
 
-/* Legacy demo styles: still used by screens that are not redesigned yet (steps 2-4 of the handoff remove them) */
-@layer components {
-  .input {
-    @apply block w-full rounded-input border-[1.5px] border-border bg-surface-raised px-3 py-2.5 text-sm text-ink placeholder:text-ink-subtle transition focus:border-focus-ring focus:outline-none disabled:cursor-not-allowed disabled:opacity-60;
-  }
-  .input-error {
-    @apply border-danger;
-  }
-  .card {
-    @apply rounded-card border border-border bg-surface-raised shadow-soft;
-  }
-}

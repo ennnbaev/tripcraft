@@ -1,6 +1,6 @@
+import { LoaderCircle, MapPin } from 'lucide-react'
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
 import { flagEmoji, placeLabel, POPULAR_PLACES, usePlaceSearch, type Place } from '../../api/places'
-import Spinner from '../Spinner'
 
 type Props = {
   id: string
@@ -9,6 +9,7 @@ type Props = {
   disabled?: boolean
   invalid?: boolean
   autoFocus?: boolean
+  describedBy?: string
 }
 
 function useDebounced<T>(value: T, ms: number): T {
@@ -24,7 +25,7 @@ function useDebounced<T>(value: T, ms: number): T {
  * Destination combobox: popular places when empty, city search while typing.
  * Free text is still accepted, so any destination the model knows can be entered.
  */
-export default function DestinationInput({ id, value, onChange, disabled, invalid, autoFocus }: Props) {
+export default function DestinationInput({ id, value, onChange, disabled, invalid, autoFocus, describedBy }: Props) {
   const listId = useId()
   const rootRef = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
@@ -74,38 +75,45 @@ export default function DestinationInput({ id, value, onChange, disabled, invali
 
   return (
     <div ref={rootRef} className="relative">
-      {flagPlace && (
-        <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-lg" aria-hidden>
-          {flagEmoji(flagPlace.countryCode)}
-        </span>
-      )}
-      <input
-        id={id}
-        role="combobox"
-        aria-expanded={showList}
-        aria-controls={listId}
-        aria-autocomplete="list"
-        aria-activedescendant={showList && options[activeIndex] ? `${listId}-${activeIndex}` : undefined}
-        autoComplete="off"
-        className={`input ${flagPlace ? 'pl-11' : ''} ${invalid ? 'input-error' : ''}`}
-        placeholder="Search a city, e.g. Tbilisi"
-        value={value}
-        onChange={(e) => {
-          onChange(e.target.value)
-          setActive(0)
-          setOpen(true)
-        }}
-        onFocus={() => setOpen(true)}
-        onKeyDown={onKeyDown}
-        disabled={disabled}
-        autoFocus={autoFocus}
-      />
+      <div className="tc-input">
+        {flagPlace ? (
+          <span className="flex w-[18px] justify-center text-lg leading-none" aria-hidden>
+            {flagEmoji(flagPlace.countryCode)}
+          </span>
+        ) : (
+          <MapPin className="tc-icon" aria-hidden />
+        )}
+        <input
+          id={id}
+          type="text"
+          role="combobox"
+          maxLength={255}
+          aria-expanded={showList}
+          aria-controls={listId}
+          aria-autocomplete="list"
+          aria-activedescendant={showList && options[activeIndex] ? `${listId}-${activeIndex}` : undefined}
+          aria-invalid={invalid}
+          aria-describedby={describedBy}
+          autoComplete="off"
+          placeholder="City or region, e.g. Tbilisi"
+          value={value}
+          onChange={(e) => {
+            onChange(e.target.value)
+            setActive(0)
+            setOpen(true)
+          }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={onKeyDown}
+          disabled={disabled}
+          autoFocus={autoFocus}
+        />
+        {loading && showList && <LoaderCircle className="tc-icon tc-spin" aria-hidden />}
+      </div>
 
       {showList && (
-        <div className="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
-          <div className="flex items-center justify-between px-3.5 pt-2.5 pb-1 text-xs font-medium text-slate-400">
-            <span>{typing ? 'Cities' : 'Popular destinations'}</span>
-            {loading && <Spinner className="h-3.5 w-3.5" />}
+        <div className="absolute z-30 mt-2 w-full overflow-hidden rounded-input border border-border bg-surface-raised shadow-lift">
+          <div className="px-3.5 pt-2.5 pb-1 font-heading text-xs font-semibold tracking-wide text-ink-muted uppercase">
+            {typing ? 'Cities' : 'Popular destinations'}
           </div>
           <ul id={listId} role="listbox" className="max-h-72 overflow-y-auto pb-1.5">
             {options.map((p, i) => (
@@ -115,7 +123,7 @@ export default function DestinationInput({ id, value, onChange, disabled, invali
                 role="option"
                 aria-selected={i === activeIndex}
                 className={`flex cursor-pointer items-center gap-3 px-3.5 py-2 text-sm ${
-                  i === activeIndex ? 'bg-sky-50' : ''
+                  i === activeIndex ? 'bg-mint-tint' : ''
                 }`}
                 onMouseEnter={() => setActive(i)}
                 // mousedown instead of click so the input doesn't lose focus first
@@ -124,10 +132,12 @@ export default function DestinationInput({ id, value, onChange, disabled, invali
                   pick(p)
                 }}
               >
-                <span className="text-xl leading-none">{flagEmoji(p.countryCode)}</span>
-                <span className="min-w-0">
-                  <span className="font-medium text-slate-900">{p.name}</span>
-                  <span className="text-slate-500">
+                <span className="text-xl leading-none" aria-hidden>
+                  {flagEmoji(p.countryCode)}
+                </span>
+                <span className="min-w-0 truncate">
+                  <span className="font-medium text-ink">{p.name}</span>
+                  <span className="text-ink-muted">
                     {' '}
                     · {p.region && p.region !== p.name ? `${p.region}, ` : ''}
                     {p.country}
@@ -136,7 +146,7 @@ export default function DestinationInput({ id, value, onChange, disabled, invali
               </li>
             ))}
             {typing && !loading && options.length === 0 && (
-              <li className="px-3.5 py-2 text-sm text-slate-500">
+              <li className="px-3.5 py-2 text-sm text-ink-muted">
                 {search.isError ? 'City search is unavailable.' : 'No cities found.'} You can still use “{value.trim()}”.
               </li>
             )}

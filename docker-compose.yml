@@ -27,6 +27,8 @@ services:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-gemini}
       AI_API_KEY: ${AI_API_KEY:-missing}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/tripcraft
+    ports:
+      - "8080:8080" # lets `npm run dev` (Vite proxy) talk to the dockerized backend
     restart: unless-stopped
 
   frontend:
