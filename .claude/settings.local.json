@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Read(//Users/danilenbaev/m2/**)",
-      "Read(//Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven3/bin/**)",
-      "Read(//Applications/**)"
-    ]
-  }
-}
