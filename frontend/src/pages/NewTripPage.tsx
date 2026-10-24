@@ -56,7 +56,7 @@ export default function NewTripPage() {
       destination: form.destination.trim(),
       notes: form.notes?.trim() || null,
     }
-    createTrip.mutate(body, {
+    createTrip.mutate({ body }, {
       onSuccess: (trip) => navigate(`/trips/${trip.id}`),
       onError: (err) => {
         if (err instanceof ApiError && err.status === 400) {

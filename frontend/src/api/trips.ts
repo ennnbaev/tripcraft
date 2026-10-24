@@ -11,8 +11,8 @@ export const tripKeys = {
 export const tripsApi = {
   list: () => api<TripSummary[]>('/trips'),
   get: (id: number) => api<TripResponse>(`/trips/${id}`),
-  create: (body: TripRequest) =>
-    api<TripResponse>('/trips', { method: 'POST', body: JSON.stringify(body) }),
+  create: (body: TripRequest, signal?: AbortSignal) =>
+    api<TripResponse>('/trips', { method: 'POST', body: JSON.stringify(body), signal }),
   remove: (id: number) => api<void>(`/trips/${id}`, { method: 'DELETE' }),
   regenerateDay: (id: number, dayNumber: number, feedback: string) =>
     api<TripResponse>(`/trips/${id}/days/${dayNumber}/regenerate`, {
@@ -35,10 +35,11 @@ export function useTrip(id: number) {
   })
 }
 
+/** Pass a signal to make the request cancellable (the Generating screen's Cancel button). */
 export function useCreateTrip() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: tripsApi.create,
+    mutationFn: ({ body, signal }: { body: TripRequest; signal?: AbortSignal }) => tripsApi.create(body, signal),
     onSuccess: (trip) => {
       qc.setQueryData(tripKeys.detail(trip.id), trip)
       qc.invalidateQueries({ queryKey: tripKeys.all, exact: true })
@@ -47,13 +48,23 @@ export function useCreateTrip() {
   })
 }
 
+/** Optimistic: the trip leaves the list at once and comes back if the DELETE fails. */
 export function useDeleteTrip() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: tripsApi.remove,
-    onSuccess: (_, id) => {
+    onMutate: async (id: number) => {
+      await qc.cancelQueries({ queryKey: tripKeys.all, exact: true })
+      const previous = qc.getQueryData<TripSummary[]>(tripKeys.all)
       qc.setQueryData<TripSummary[]>(tripKeys.all, (old) => old?.filter((t) => t.id !== id))
+      return { previous }
+    },
+    onError: (_err, _id, context) => {
+      if (context?.previous) qc.setQueryData(tripKeys.all, context.previous)
+    },
+    onSuccess: (_, id) => {
       qc.removeQueries({ queryKey: tripKeys.detail(id) })
+      qc.invalidateQueries({ queryKey: ['stats'] })
     },
   })
 }

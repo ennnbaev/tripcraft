@@ -46,7 +46,58 @@ export function formatNumber(n: number): string {
   return n.toLocaleString('en-US')
 }
 
-/** "MUSEUMS" -> "Museums" */
+/** Enums as words: "MUSEUMS" -> "Museums", "INVALID_JSON" -> "Invalid JSON" */
 export function label(value: string): string {
-  return value.charAt(0) + value.slice(1).toLowerCase().replaceAll('_', ' ')
+  const words = value.toLowerCase().split('_')
+  return words
+    .map((w, i) => (w === 'json' || w === 'ai' || w === 'usd' ? w.toUpperCase() : i === 0 ? w.charAt(0).toUpperCase() + w.slice(1) : w))
+    .join(' ')
+}
+
+const intFmt = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })
+
+/** Local currency in the design's style: "90 GEL". */
+export function formatLocal(amount: number, currency: string): string {
+  return `${intFmt.format(amount)} ${currency}`
+}
+
+/** "≈ $33" */
+export function formatUsdApprox(amount: number): string {
+  return `≈ $${intFmt.format(amount)}`
+}
+
+/** Cost parts for "90 GEL ≈ $33"; free = 0, shown as "Free" in mint-ink. */
+export function costParts(amount: number, amountUsd: number, currency: string) {
+  return { free: amount === 0, local: formatLocal(amount, currency), usd: formatUsdApprox(amountUsd) }
+}
+
+const dayMonthFmt = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' })
+const weekdayFmt = new Intl.DateTimeFormat('en-GB', { weekday: 'short' })
+
+const asDate = (iso: string) => new Date(`${iso}T00:00:00`)
+
+/** "10–12 Nov 2026", "28 Nov – 2 Dec 2026", "30 Dec 2026 – 2 Jan 2027" */
+export function formatDateSpan(startIso: string, endIso: string): string {
+  const s = asDate(startIso)
+  const e = asDate(endIso)
+  if (startIso === endIso) return formatDate(startIso)
+  if (s.getFullYear() !== e.getFullYear()) return `${formatDate(startIso)} – ${formatDate(endIso)}`
+  if (s.getMonth() !== e.getMonth()) return `${dayMonthFmt.format(s)} – ${formatDate(endIso)}`
+  return `${s.getDate()}–${formatDate(endIso)}`
+}
+
+/** "Tue 10 Nov" */
+export function formatWeekdayDate(iso: string): string {
+  const d = asDate(iso)
+  return `${weekdayFmt.format(d)} ${dayMonthFmt.format(d)}`
+}
+
+/** "Tue 10 Nov 2026" */
+export function formatWeekdayDateYear(iso: string): string {
+  return `${formatWeekdayDate(iso)} ${asDate(iso).getFullYear()}`
+}
+
+/** "3 days", "1 stop" */
+export function plural(n: number, one: string, many = `${one}s`): string {
+  return `${n} ${n === 1 ? one : many}`
 }
