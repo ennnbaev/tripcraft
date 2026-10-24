@@ -36,6 +36,24 @@ Open http://localhost:3000. Postgres, the backend (profile from `SPRING_PROFILES
 
 Useful commands: `docker compose logs -f backend`, `docker compose down` (data stays in the `pgdata` volume), `docker compose up -d --build` after code changes.
 
+## Deploy (free): Render + Neon
+
+The root `Dockerfile` builds one image: Spring Boot serves both the API and the React build.
+`render.yaml` describes the Render service. The database is a free Neon Postgres (Render's free Postgres is deleted after 30 days).
+
+1. **Database:** create a project on https://neon.tech, copy the connection details. Use them as
+   `SPRING_DATASOURCE_URL=jdbc:postgresql://<host>/<db>?sslmode=require`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`.
+   Flyway creates the tables on the first start.
+2. **Code:** push this repo to GitHub.
+3. **Service:** on https://render.com choose New → Blueprint, pick the repo, then fill in `AI_API_KEY` and the three datasource values.
+4. Open `https://<service>.onrender.com`.
+
+Free tier notes: the service sleeps after 15 minutes without traffic, and the first request after that takes about a minute.
+Anyone with the link can generate trips on your AI key's free quota.
+
+Quick temporary link from your own machine (no account, works while the laptop and `docker compose` run):
+`cloudflared tunnel --url http://localhost:3000`
+
 ## Run locally (development)
 
 Requirements: JDK 21, Node 22+ (Vite 8 does not run on Node 21), Docker. Maven is not needed: use the wrapper `./mvnw`.

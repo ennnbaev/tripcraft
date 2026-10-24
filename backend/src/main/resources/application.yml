@@ -6,10 +6,13 @@ spring:
   config:
     import: optional:file:.env[.properties],optional:file:../.env[.properties]
 
+  # Overridden in deploys by SPRING_DATASOURCE_URL / _USERNAME / _PASSWORD
   datasource:
     url: jdbc:postgresql://localhost:5432/tripcraft
     username: tripcraft
     password: tripcraft
+    hikari:
+      maximum-pool-size: 5   # small free-tier databases (Neon) limit connections
 
   jpa:
     hibernate:
@@ -50,7 +53,9 @@ spring:
         max-interval: 5s
 
 server:
-  port: 8080
+  port: ${PORT:8080}   # hosting platforms (Render) pass the port in PORT
+  # Behind an HTTPS proxy (Render, nginx) trust X-Forwarded-Proto/Host, otherwise same-origin POSTs look cross-origin (403)
+  forward-headers-strategy: framework
 
 management:
   endpoints:
