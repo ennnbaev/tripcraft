@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ApiError, errorMessage } from '../api/client'
 import { useCreateTrip } from '../api/trips'
 import Alert from '../components/Alert'
+import DestinationInput from '../components/form/DestinationInput'
 import Field from '../components/form/Field'
 import InterestChips from '../components/form/InterestChips'
 import SegmentedControl from '../components/form/SegmentedControl'
@@ -82,12 +83,11 @@ export default function NewTripPage() {
 
       <form onSubmit={onSubmit} noValidate className="card mt-8 space-y-6 p-6 sm:p-8">
         <Field label="Destination" htmlFor="destination" error={errors.destination}>
-          <input
+          <DestinationInput
             id="destination"
-            className={`input ${errors.destination ? 'input-error' : ''}`}
-            placeholder="e.g. Tbilisi, Georgia"
             value={form.destination}
-            onChange={(e) => update('destination', e.target.value)}
+            onChange={(v) => update('destination', v)}
+            invalid={!!errors.destination}
             disabled={busy}
             autoFocus
           />

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { useParams } from 'react-router-dom'
 import { ApiError } from '../api/client'
 import { useTrip } from '../api/trips'
@@ -5,9 +6,11 @@ import { EmptyState, ErrorState, LoadingState } from '../components/StateViews'
 import DayCard from '../components/trip/DayCard'
 import PackingListCard from '../components/trip/PackingListCard'
 import TripHeader from '../components/trip/TripHeader'
-import TripMap from '../components/trip/TripMap'
 import TripSummaryCard from '../components/trip/TripSummaryCard'
 import NotFoundPage from './NotFoundPage'
+
+// MapLibre is heavy, so the map loads in its own chunk
+const TripMap = lazy(() => import('../components/trip/TripMap'))
 
 export default function TripPage() {
   const id = Number(useParams().id)
@@ -28,7 +31,9 @@ export default function TripPage() {
       ) : (
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="min-w-0 space-y-6">
-            <TripMap days={itinerary.days} />
+            <Suspense fallback={<div className="card h-96 animate-pulse bg-slate-100" />}>
+              <TripMap days={itinerary.days} />
+            </Suspense>
             {itinerary.days.map((day) => (
               <DayCard key={day.dayNumber} tripId={trip.id} day={day} currency={itinerary.currency} />
             ))}
