@@ -17,7 +17,7 @@ export default function PackingListCard({ tripId, packingList }: Props) {
         <h2 className="text-sm font-semibold text-slate-900">Packing list</h2>
         <button
           type="button"
-          className={hasList ? 'btn-ghost' : 'btn-secondary px-3 py-2'}
+          className={hasList ? 'tc-btn tc-btn--ghost tc-btn--sm' : 'tc-btn tc-btn--secondary px-3 py-2'}
           onClick={() => generate.mutate()}
           disabled={busy}
         >

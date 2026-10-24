@@ -17,7 +17,7 @@ export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () =>
       <p className="text-lg font-semibold text-slate-900">Something went wrong</p>
       <p className="mt-2 text-sm text-slate-600">{errorMessage(error)}</p>
       {onRetry && (
-        <button type="button" onClick={onRetry} className="btn-secondary mt-5">
+        <button type="button" onClick={onRetry} className="tc-btn tc-btn--secondary mt-5">
           Try again
         </button>
       )}

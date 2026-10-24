@@ -1,22 +1,128 @@
 @import "tailwindcss";
+@import "./styles/tokens.css";
+@import "./styles/components.css";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Design tokens as Tailwind theme values (bg-mint, text-ink-muted, rounded-card, shadow-soft, font-heading, ...).
+   Theme keys never reuse a token's own name, otherwise the variables would reference themselves. */
+@theme inline {
+  --font-heading: var(--font-display);
+  --font-sans: var(--font-body);
+  --color-surface: var(--surface);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-deep: var(--surface-deep);
+  --color-overlay: var(--overlay);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-on-deep: var(--on-deep);
+  --color-on-deep-muted: var(--on-deep-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-focus-ring: var(--focus-ring);
+  --color-focus-ring-on-deep: var(--focus-ring-on-deep);
+  --color-mint: var(--mint);
+  --color-mint-hover: var(--mint-hover);
+  --color-on-mint: var(--on-mint);
+  --color-mint-tint: var(--mint-tint);
+  --color-mint-ink: var(--mint-ink);
+  --color-coral: var(--coral);
+  --color-coral-tint: var(--coral-tint);
+  --color-coral-ink: var(--coral-ink);
+  --color-sun: var(--sun);
+  --color-sun-tint: var(--sun-tint);
+  --color-sun-ink: var(--sun-ink);
+  --color-on-sun: var(--on-sun);
+  --color-violet: var(--violet);
+  --color-violet-tint: var(--violet-tint);
+  --color-violet-ink: var(--violet-ink);
+  --color-sky: var(--sky);
+  --color-sky-tint: var(--sky-tint);
+  --color-sky-ink: var(--sky-ink);
+  --color-danger: var(--danger);
+  --color-on-danger: var(--on-danger);
+  --color-danger-tint: var(--danger-tint);
+  --color-danger-ink: var(--danger-ink);
+  --color-cat-nightlife: var(--cat-nightlife);
+  --color-cat-nightlife-tint: var(--cat-nightlife-tint);
+  --color-cat-nightlife-ink: var(--cat-nightlife-ink);
+  --color-cat-shopping: var(--cat-shopping);
+  --color-cat-shopping-tint: var(--cat-shopping-tint);
+  --color-cat-shopping-ink: var(--cat-shopping-ink);
+  --color-cat-art: var(--cat-art);
+  --color-cat-art-tint: var(--cat-art-tint);
+  --color-cat-art-ink: var(--cat-art-ink);
+  --color-cat-sport: var(--cat-sport);
+  --color-cat-sport-tint: var(--cat-sport-tint);
+  --color-cat-sport-ink: var(--cat-sport-ink);
+  --color-cat-transport: var(--cat-transport);
+  --color-cat-transport-tint: var(--cat-transport-tint);
+  --color-cat-transport-ink: var(--cat-transport-ink);
+  --color-cat-other: var(--cat-other);
+  --color-cat-other-tint: var(--cat-other-tint);
+  --color-cat-other-ink: var(--cat-other-ink);
+  --color-cat-food: var(--cat-food);
+  --color-cat-food-tint: var(--cat-food-tint);
+  --color-cat-food-ink: var(--cat-food-ink);
+  --color-cat-museums: var(--cat-museums);
+  --color-cat-museums-tint: var(--cat-museums-tint);
+  --color-cat-museums-ink: var(--cat-museums-ink);
+  --color-cat-nature: var(--cat-nature);
+  --color-cat-nature-tint: var(--cat-nature-tint);
+  --color-cat-nature-ink: var(--cat-nature-ink);
+  --color-cat-history: var(--cat-history);
+  --color-cat-history-tint: var(--cat-history-tint);
+  --color-cat-history-ink: var(--cat-history-ink);
+  --color-cat-sightseeing: var(--cat-sightseeing);
+  --color-cat-sightseeing-tint: var(--cat-sightseeing-tint);
+  --color-cat-sightseeing-ink: var(--cat-sightseeing-ink);
+  --color-slot-morning: var(--slot-morning);
+  --color-slot-afternoon: var(--slot-afternoon);
+  --color-slot-evening: var(--slot-evening);
+  --radius-input: var(--radius-sm);
+  --radius-card: var(--radius-md);
+  --radius-panel: var(--radius-lg);
+  --shadow-soft: var(--shadow-card);
+  --shadow-lift: var(--shadow-float);
+  --shadow-marker: var(--shadow-pin);
+}
+
+@layer base {
+  html {
+    background: var(--surface-sunken);
+  }
+  body {
+    font-family: var(--font-body);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 24px;
+    -webkit-font-smoothing: antialiased;
+    background: var(--surface-sunken);
+  }
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Legacy demo styles: still used by screens that are not redesigned yet (steps 2-4 of the handoff remove them) */
 @layer components {
   .input {
-    @apply block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20 disabled:cursor-not-allowed disabled:bg-slate-50;
+    @apply block w-full rounded-input border-[1.5px] border-border bg-surface-raised px-3 py-2.5 text-sm text-ink placeholder:text-ink-subtle transition focus:border-focus-ring focus:outline-none disabled:cursor-not-allowed disabled:opacity-60;
   }
   .input-error {
-    @apply border-red-400 focus:border-red-500 focus:ring-red-500/20;
-  }
-  .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60;
-  }
-  .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60;
-  }
-  .btn-ghost {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-60;
+    @apply border-danger;
   }
   .card {
-    @apply rounded-2xl border border-slate-200 bg-white shadow-sm;
+    @apply rounded-card border border-border bg-surface-raised shadow-soft;
   }
 }

@@ -51,7 +51,7 @@ export default function DayCard({ tripId, day, currency }: Props) {
           {!open && (
             <button
               type="button"
-              className="btn-secondary px-3 py-2"
+              className="tc-btn tc-btn--secondary px-3 py-2"
               onClick={() => setOpen(true)}
               disabled={anyRegenerating}
             >
@@ -81,10 +81,10 @@ export default function DayCard({ tripId, day, currency }: Props) {
             <span className="mr-auto text-xs text-slate-500">
               {feedback.length}/{MAX_FEEDBACK}
             </span>
-            <button type="button" className="btn-ghost" onClick={() => setOpen(false)} disabled={busy}>
+            <button type="button" className="tc-btn tc-btn--ghost tc-btn--sm" onClick={() => setOpen(false)} disabled={busy}>
               Cancel
             </button>
-            <button type="submit" className="btn-primary" disabled={anyRegenerating}>
+            <button type="submit" className="tc-btn tc-btn--primary" disabled={anyRegenerating}>
               {busy ? (
                 <>
                   <Spinner className="h-4 w-4" /> Regenerating…

@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>My trips</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./tripcraft.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&amp;family=Rubik:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="tc-theme tc-page" data-theme="{{theme}}" style="font-family: Rubik, 'Segoe UI', system-ui, sans-serif; color: var(--ink); min-height: 100%">
+<svg class="tc-sprite" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></symbol>
+<symbol id="i-calendar" viewBox="0 0 24 24"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></symbol>
+<symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"></path></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></symbol>
+<symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M12 5v14"></path></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M3 12h.01"></path><path d="M3 18h.01"></path><path d="M3 6h.01"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M8 6h13"></path></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></symbol>
+</defs></svg>
+
+<header class="tc-header">
+  <a class="tc-logo" href="{{links.plan}}" aria-label="TripCraft home"><span class="tc-logo__mark"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-pin"></use></svg></span><span class="tc-logo__text">Trip<b>Craft</b></span></a>
+  <nav class="tc-nav" aria-label="Main">
+    <a href="{{links.plan}}"><svg class="tc-icon tc-icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-plus"></use></svg>New trip</a>
+    <a href="{{links.trips}}" aria-current="page"><svg class="tc-icon tc-icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-list"></use></svg>My trips</a>
+    <a href="{{links.stats}}"><svg class="tc-icon tc-icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chart"></use></svg>AI stats</a>
+  </nav>
+</header>
+
+<main class="tc-wrap" style="max-width: 880px">
+  <div class="tc-pagehead">
+    <div>
+      <h1>My trips</h1>
+      <p>{{countLabel}}</p>
+    </div>
+    <sc-if value="{{hasList}}" hint-placeholder-val="{{ true }}">
+      <a class="tc-btn tc-btn--primary" href="{{links.plan}}"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-plus"></use></svg>New trip</a>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{deletedNote.show}}" hint-placeholder-val="{{ false }}">
+    <div class="tc-note tc-note--success" role="status" style="margin-bottom: 12px">
+      <svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-check"></use></svg>
+      <div class="tc-note__body">{{deletedNote.text}}</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}">
+    <div class="tc-triplist" role="status" aria-label="Loading your trips">
+      <sc-for list="{{skel}}" as="k" hint-placeholder-count="3">
+        <div class="tc-skelrow">
+          <div class="tc-skel" style="width: 72px; height: 72px; border-radius: 12px"></div>
+          <div style="display: grid; gap: 8px"><div class="tc-skel" style="height: 16px; width: 40%"></div><div class="tc-skel" style="height: 12px; width: 65%"></div></div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isError}}" hint-placeholder-val="{{ false }}">
+    <div class="tc-note tc-note--error" role="alert">
+      <svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-alert"></use></svg>
+      <div class="tc-note__body"><b>We couldn't load your trips</b>Check your connection and try again.</div>
+      <div class="tc-note__actions"><button type="button" class="tc-btn tc-btn--secondary tc-btn--sm" onClick="{{retry}}"><svg class="tc-icon tc-icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-refresh"></use></svg>Try again</button></div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{hasList}}" hint-placeholder-val="{{ true }}">
+    <ul class="tc-triplist" style="list-style: none; margin: 0; padding: 0">
+      <sc-for list="{{trips}}" as="t" hint-placeholder-count="4">
+        <li>
+          <sc-if value="{{t.normal}}" hint-placeholder-val="{{ true }}">
+            <div class="tc-trip">
+              <div class="tc-trip__thumb" style="background: var(--{{t.tone}}-tint); color: var(--{{t.tone}}-ink)" aria-hidden="true"><svg class="tc-icon" viewBox="0 0 24 24"><use href="#i-pin"></use></svg></div>
+              <a class="tc-trip__main" href="{{links.trip}}">
+                <h3>{{t.destination}}</h3>
+                <p>
+                  <span><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-calendar"></use></svg>{{t.range}} · {{t.len}}</span>
+                  <span><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-clock"></use></svg>Created {{t.created}}</span>
+                  <sc-if value="{{t.past}}" hint-placeholder-val="{{ false }}"><span class="tc-cat tc-cat--other">Past trip</span></sc-if>
+                </p>
+              </a>
+              <div class="tc-trip__actions">
+                <button type="button" class="tc-btn tc-btn--ghost tc-btn--icon tc-del" aria-label="{{t.delLabel}}" onClick="{{t.ask}}"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-trash"></use></svg></button>
+                <a class="tc-btn tc-btn--secondary tc-btn--sm tc-trip__open" href="{{links.trip}}">Open<svg class="tc-icon tc-icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chevron"></use></svg></a>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{t.confirming}}" hint-placeholder-val="{{ false }}">
+            <div class="tc-trip tc-trip--confirm" role="alertdialog" aria-label="{{t.delLabel}}">
+              <div class="tc-confirm">
+                <svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-trash"></use></svg>
+                <div><b>Delete {{t.short}} trip?</b>Its itinerary and packing list will be removed. AI usage stats stay. This can't be undone.</div>
+                <button type="button" class="tc-btn tc-btn--secondary tc-btn--sm" onClick="{{t.cancel}}">Keep</button>
+                <button type="button" class="tc-btn tc-btn--danger tc-btn--sm" onClick="{{t.remove}}">Delete</button>
+              </div>
+            </div>
+          </sc-if>
+        </li>
+      </sc-for>
+    </ul>
+  </sc-if>
+
+  <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}">
+    <section class="tc-empty" aria-labelledby="empty-title">
+      <div class="tc-empty__art" aria-hidden="true">
+        <i style="width: 40px; height: 56px; background: var(--coral)"></i>
+        <i style="width: 32px; height: 32px; background: var(--sun); border-radius: 50%"></i>
+        <i style="width: 48px; height: 72px; background: var(--mint)"></i>
+        <i style="width: 28px; height: 44px; background: var(--sky)"></i>
+      </div>
+      <h2 id="empty-title">No trips yet</h2>
+      <p>Tell us where and when you're going, and your day-by-day plan will be saved here.</p>
+      <a class="tc-btn tc-btn--primary" href="{{links.plan}}"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-sparkles"></use></svg>Plan your first trip</a>
+    </section>
+  </sc-if>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"view":{"editor":"enum","options":["list","empty","loading","error"],"default":"list"},"prefix":{"editor":null,"default":""},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      trips: [
+        { id: 42, destination: 'Tbilisi, Georgia', startDate: '2026-11-10', endDate: '2026-11-12', createdAt: '2026-10-24T13:20:11+04:00' },
+        { id: 39, destination: 'Lisbon, Portugal', startDate: '2026-12-05', endDate: '2026-12-09', createdAt: '2026-10-20T19:02:45+04:00' },
+        { id: 31, destination: 'Kyoto, Japan', startDate: '2027-04-02', endDate: '2027-04-08', createdAt: '2026-10-12T09:41:03+04:00' },
+        { id: 27, destination: 'Batumi, Georgia', startDate: '2026-06-14', endDate: '2026-06-16', createdAt: '2026-05-30T21:15:30+04:00' }
+      ],
+      confirmId: null, deleted: '', retried: false
+    };
+  }
+  renderVals() {
+    const s = this.state;
+    const p = this.props.prefix ?? '';
+    const view = s.retried ? 'list' : (this.props.view ?? 'list');
+    const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const parse = (d) => { const [y, m, dd] = d.slice(0, 10).split('-').map(Number); return { y, m, d: dd, t: Date.UTC(y, m - 1, dd) }; };
+    const range = (a0, b0) => {
+      const a = parse(a0), b = parse(b0);
+      if (a.y === b.y && a.m === b.m) return a.d + '–' + b.d + ' ' + MON[b.m - 1] + ' ' + b.y;
+      if (a.y === b.y) return a.d + ' ' + MON[a.m - 1] + ' – ' + b.d + ' ' + MON[b.m - 1] + ' ' + b.y;
+      return a.d + ' ' + MON[a.m - 1] + ' ' + a.y + ' – ' + b.d + ' ' + MON[b.m - 1] + ' ' + b.y;
+    };
+    const TONES = ['coral', 'sky', 'sun', 'mint'];
+    const list = view === 'empty' ? [] : s.trips;
+    const trips = list.map((t, i) => {
+      const a = parse(t.startDate), b = parse(t.endDate), c = parse(t.createdAt);
+      const len = Math.round((b.t - a.t) / 86400000) + 1;
+      const short = t.destination.split(',')[0];
+      const confirming = s.confirmId === t.id;
+      return {
+        destination: t.destination, short, range: range(t.startDate, t.endDate), len: len + (len === 1 ? ' day' : ' days'),
+        created: c.d + ' ' + MON[c.m - 1] + ' ' + c.y, past: t.endDate < '2026-10-24', tone: TONES[t.id % 4],
+        delLabel: 'Delete ' + short + ' trip', confirming, normal: !confirming,
+        ask: () => this.setState({ confirmId: t.id, deleted: '' }),
+        cancel: () => this.setState({ confirmId: null }),
+        remove: () => this.setState({ trips: this.state.trips.filter((x) => x.id !== t.id), confirmId: null, deleted: short })
+      };
+    });
+    const isList = view === 'list' && trips.length > 0;
+    const isEmpty = (view === 'list' || view === 'empty') && trips.length === 0;
+    return {
+      theme: this.props.theme ?? 'light',
+      links: { plan: p + 'Main.dc.html', trip: p + 'Trip.dc.html', trips: p + 'Trips.dc.html', stats: p + 'Stats.dc.html' },
+      trips, hasList: isList, isEmpty, isLoading: view === 'loading', isError: view === 'error', skel: [1, 2, 3],
+      countLabel: view === 'loading' ? 'Loading your trips…' : (isList ? (trips.length + (trips.length === 1 ? ' saved trip' : ' saved trips') + ', newest first') : (view === 'error' ? 'Something went wrong' : 'Your saved plans will show up here')),
+      deletedNote: { show: !!s.deleted && view === 'list', text: 'The ' + s.deleted + ' trip was deleted.' },
+      retry: () => this.setState({ retried: true })
+    };
+  }
+}
+</script>
+</body>
+</html>

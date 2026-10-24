@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AI usage stats</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./tripcraft.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&amp;family=Rubik:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="tc-theme tc-page" data-theme="{{theme}}" style="font-family: Rubik, 'Segoe UI', system-ui, sans-serif; color: var(--ink); min-height: 100%">
+<svg class="tc-sprite" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></symbol>
+<symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></symbol>
+<symbol id="i-in" viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="m19 12-7 7-7-7"></path></symbol>
+<symbol id="i-out" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7"></path><path d="M12 19V5"></path></symbol>
+<symbol id="i-activity" viewBox="0 0 24 24"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M12 5v14"></path></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M3 12h.01"></path><path d="M3 18h.01"></path><path d="M3 6h.01"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M8 6h13"></path></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></symbol>
+</defs></svg>
+
+<header class="tc-header">
+  <a class="tc-logo" href="{{links.plan}}" aria-label="TripCraft home"><span class="tc-logo__mark"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-pin"></use></svg></span><span class="tc-logo__text">Trip<b>Craft</b></span></a>
+  <nav class="tc-nav" aria-label="Main">
+    <a href="{{links.plan}}"><svg class="tc-icon tc-icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-plus"></use></svg>New trip</a>
+    <a href="{{links.trips}}"><svg class="tc-icon tc-icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-list"></use></svg>My trips</a>
+    <a href="{{links.stats}}" aria-current="page"><svg class="tc-icon tc-icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chart"></use></svg>AI stats</a>
+  </nav>
+</header>
+
+<main class="tc-wrap">
+  <div class="tc-pagehead">
+    <div>
+      <h1>AI usage</h1>
+      <p>Every call to the model, including retries. Charts cover the last 14 days.</p>
+    </div>
+    <button type="button" class="tc-btn tc-btn--secondary tc-btn--sm" onClick="{{refresh}}"><svg class="tc-icon tc-icon-sm {{spinCls}}" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-refresh"></use></svg>Refresh</button>
+  </div>
+
+  <sc-if value="{{isError}}" hint-placeholder-val="{{ false }}">
+    <div class="tc-note tc-note--error" role="alert">
+      <svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-alert"></use></svg>
+      <div class="tc-note__body"><b>We couldn't load the stats</b>The server didn't answer. Try again in a moment.</div>
+      <div class="tc-note__actions"><button type="button" class="tc-btn tc-btn--secondary tc-btn--sm" onClick="{{retry}}">Try again</button></div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}">
+    <section class="tc-empty" aria-labelledby="empty-title">
+      <div class="tc-packempty__ic"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chart"></use></svg></div>
+      <h2 id="empty-title">No AI requests yet</h2>
+      <p>Plan a trip and every call to the model will show up here, with tokens, timing and status.</p>
+      <a class="tc-btn tc-btn--primary" href="{{links.plan}}"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-sparkles"></use></svg>Plan a trip</a>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}">
+    <div role="status" aria-label="Loading stats" style="display: grid; gap: 16px">
+      <div class="tc-stats">
+        <sc-for list="{{skel6}}" as="k" hint-placeholder-count="6">
+          <div class="tc-stat"><div class="tc-skel" style="height: 12px; width: 60%"></div><div class="tc-skel" style="height: 28px; width: 50%; margin-top: 6px"></div></div>
+        </sc-for>
+      </div>
+      <div class="tc-panel"><div class="tc-skel" style="height: 260px"></div></div>
+      <div class="tc-panel"><div class="tc-skel" style="height: 180px"></div></div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{hasData}}" hint-placeholder-val="{{ true }}">
+    <section class="tc-stats" aria-label="Totals">
+      <div class="tc-stat"><span class="tc-stat__label"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-activity"></use></svg>Requests</span><b>{{t.total}}</b><small>All time</small></div>
+      <div class="tc-stat"><span class="tc-stat__label" style="color: var(--mint-ink)"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-check"></use></svg>Successful</span><b>{{t.success}}</b><small>{{t.successRate}} of requests</small></div>
+      <div class="tc-stat"><span class="tc-stat__label" style="color: var(--danger-ink)"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-alert"></use></svg>Errors</span><b>{{t.errors}}</b><small>{{t.errorRate}} error rate</small></div>
+      <div class="tc-stat"><span class="tc-stat__label"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-clock"></use></svg>Avg latency</span><b>{{t.latency}}</b><small>{{t.latencyMs}}</small></div>
+      <div class="tc-stat"><span class="tc-stat__label"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-in"></use></svg>Input tokens</span><b>{{t.inTok}}</b><small>{{t.inTokFull}}</small></div>
+      <div class="tc-stat"><span class="tc-stat__label"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-out"></use></svg>Output tokens</span><b>{{t.outTok}}</b><small>{{t.outTokFull}}</small></div>
+    </section>
+
+    <div class="tc-statgrid">
+      <section class="tc-panel" style="grid-column: span 8" aria-labelledby="byday-title">
+        <div class="tc-panel__head">
+          <div><h2 id="byday-title">Requests by day</h2><p>11–24 Oct 2026 · tap a bar for details</p></div>
+          <div class="tc-legend"><span><i style="background: var(--mint)"></i>Successful</span><span><i style="background: var(--danger)"></i>Errors</span></div>
+        </div>
+        <div class="tc-chart">
+          <div class="tc-chart__y" aria-hidden="true"><span>25</span><span>20</span><span>15</span><span>10</span><span>5</span><span>0</span></div>
+          <div class="tc-chart__plot">
+            <div class="tc-chart__grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <sc-for list="{{byDay}}" as="d" hint-placeholder-count="14">
+              <button type="button" class="tc-chart__col" aria-pressed="{{d.pressed}}" aria-label="{{d.aria}}" onClick="{{d.pick}}" onMouseEnter="{{d.pick}}">
+                <sc-if value="{{d.sel}}" hint-placeholder-val="{{ false }}"><span class="tc-chart__tip" style="left: 50%"><b>{{d.long}}</b>{{d.requests}} requests · {{d.errors}} errors</span></sc-if>
+                <span class="tc-chart__err" style="height: {{d.errH}}%"></span>
+                <span class="tc-chart__ok" style="height: {{d.okH}}%"></span>
+              </button>
+            </sc-for>
+          </div>
+          <div class="tc-chart__x" aria-hidden="true">
+            <sc-for list="{{byDay}}" as="d" hint-placeholder-count="14"><span class="{{d.xCls}}">{{d.short}}</span></sc-for>
+          </div>
+        </div>
+      </section>
+
+      <section class="tc-panel" style="grid-column: span 4" aria-labelledby="bytpl-title">
+        <div class="tc-panel__head"><div><h2 id="bytpl-title">By prompt template</h2><p>Requests and average latency</p></div></div>
+        <div style="display: grid; gap: 18px">
+          <sc-for list="{{byTemplate}}" as="b" hint-placeholder-count="3">
+            <div>
+              <div style="display: flex; justify-content: space-between; gap: 8px; align-items: baseline">
+                <code style="font: 500 14px/20px ui-monospace, SFMono-Regular, Menlo, monospace">{{b.templateName}}</code>
+                <span style="font: 600 14px/20px var(--font-display); font-variant-numeric: tabular-nums">{{b.requests}}</span>
+              </div>
+              <div class="tc-minibar"><i style="width: {{b.w}}%"></i></div>
+              <span style="font: 400 12px/16px var(--font-body); color: var(--ink-muted)">Avg {{b.latency}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <section class="tc-panel" style="grid-column: span 12" aria-labelledby="byprov-title">
+        <div class="tc-panel__head"><div><h2 id="byprov-title">By provider</h2><p>Switch providers with a Spring profile; the code doesn't change.</p></div></div>
+        <div class="tc-tablebox">
+          <table class="tc-table">
+            <thead><tr><th>Provider</th><th>Model</th><th class="num">Requests</th><th class="num">Input tokens</th><th class="num">Output tokens</th><th class="num">Avg latency</th></tr></thead>
+            <tbody>
+              <sc-for list="{{byProvider}}" as="r" hint-placeholder-count="3">
+                <tr><td style="font-weight: 500">{{r.provider}}</td><td><code>{{r.model}}</code></td><td class="num">{{r.requests}}</td><td class="num">{{r.inputTokens}}</td><td class="num">{{r.outputTokens}}</td><td class="num">{{r.latency}}</td></tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tc-panel" style="grid-column: span 12" aria-labelledby="recent-title">
+        <div class="tc-panel__head"><div><h2 id="recent-title">Recent requests</h2><p>Last 20, newest first</p></div></div>
+        <div class="tc-tablebox">
+          <table class="tc-table" style="min-width: 960px">
+            <thead><tr><th>Time</th><th>Trip</th><th>Template</th><th>Provider · model</th><th class="num">In</th><th class="num">Out</th><th class="num">Latency</th><th>Status</th></tr></thead>
+            <tbody>
+              <sc-for list="{{recent}}" as="r" hint-placeholder-count="8">
+                <tr>
+                  <td class="nowrap">{{r.time}}</td>
+                  <td class="nowrap {{r.tripCls}}">{{r.trip}}</td>
+                  <td class="nowrap"><code>{{r.templateName}}</code> <span class="muted">{{r.templateVersion}}</span></td>
+                  <td class="nowrap">{{r.provider}} <span class="muted">· {{r.model}}</span></td>
+                  <td class="num {{r.inCls}}">{{r.inTok}}</td>
+                  <td class="num {{r.outCls}}">{{r.outTok}}</td>
+                  <td class="num">{{r.latency}}</td>
+                  <td><span class="tc-status tc-status--{{r.statusCls}}"><i aria-hidden="true"></i>{{r.statusLabel}}</span><sc-if value="{{r.hasErr}}" hint-placeholder-val="{{ false }}"><span class="err">{{r.errorMessage}}</span></sc-if></td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </sc-if>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"view":{"editor":"enum","options":["data","empty","loading","error"],"default":"data"},"prefix":{"editor":null,"default":""},"$preview":{"width":1440,"height":2300}}'>
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = { sel: 13, refreshing: false, retried: false };
+  }
+  componentWillUnmount() { clearTimeout(this.t); }
+  stats() {
+    const req = [4, 6, 3, 8, 12, 5, 9, 14, 11, 7, 16, 13, 18, 22];
+    const err = [0, 1, 0, 1, 2, 0, 1, 3, 1, 0, 2, 1, 2, 3];
+    const R = (id, tripId, templateName, provider, model, inputTokens, outputTokens, latencyMs, status, errorMessage, createdAt) =>
+      ({ id, tripId, templateName, templateVersion: 'v3', provider, model, inputTokens, outputTokens, latencyMs, status, errorMessage, createdAt });
+    const G = ['gemini', 'gemini-2.5-flash'], Q = ['groq', 'llama-3.3-70b-versatile'], O = ['openai', 'gpt-4o-mini'];
+    return {
+      totalRequests: 148, successCount: 131, errorCount: 17, errorRate: 17 / 148, avgLatencyMs: 7164,
+      totalInputTokens: 412380, totalOutputTokens: 286940,
+      byDay: req.map((r, i) => ({ date: '2026-10-' + String(11 + i).padStart(2, '0'), requests: r, errors: err[i] })),
+      byProvider: [
+        { provider: 'gemini', model: 'gemini-2.5-flash', requests: 96, inputTokens: 268410, outputTokens: 187320, avgLatencyMs: 7900 },
+        { provider: 'groq', model: 'llama-3.3-70b-versatile', requests: 38, inputTokens: 104220, outputTokens: 72880, avgLatencyMs: 4310 },
+        { provider: 'openai', model: 'gpt-4o-mini', requests: 14, inputTokens: 39750, outputTokens: 26740, avgLatencyMs: 9860 }
+      ],
+      byTemplate: [
+        { templateName: 'itinerary-generate', requests: 71, avgLatencyMs: 10085 },
+        { templateName: 'day-regenerate', requests: 52, avgLatencyMs: 4980 },
+        { templateName: 'packing-list', requests: 25, avgLatencyMs: 3410 }
+      ],
+      recent: [
+        R(148, 42, 'packing-list', ...G, 1840, 620, 3120, 'SUCCESS', null, '2026-10-24T13:31:08+04:00'),
+        R(147, 42, 'day-regenerate', ...G, 4210, 1180, 5240, 'SUCCESS', null, '2026-10-24T13:28:44+04:00'),
+        R(146, 42, 'day-regenerate', ...G, null, null, 1210, 'RATE_LIMITED', 'AI free tier limit reached, please try again in a minute', '2026-10-24T13:27:02+04:00'),
+        R(145, 42, 'itinerary-generate', ...G, 3020, 4890, 11840, 'SUCCESS', null, '2026-10-24T13:20:11+04:00'),
+        R(144, 42, 'itinerary-generate', ...G, 2990, 5120, 12410, 'INVALID_JSON', 'Expected 3 days, got 2', '2026-10-24T13:19:58+04:00'),
+        R(143, null, 'itinerary-generate', ...Q, 2870, 4410, 4620, 'SUCCESS', null, '2026-10-24T12:58:37+04:00'),
+        R(142, 41, 'day-regenerate', ...Q, 4120, 1090, 2810, 'SUCCESS', null, '2026-10-24T12:40:19+04:00'),
+        R(141, 41, 'itinerary-generate', ...Q, 3110, 6020, 5930, 'SUCCESS', null, '2026-10-24T12:31:50+04:00'),
+        R(140, null, 'itinerary-generate', ...Q, null, null, 60000, 'ERROR', 'Read timed out after 60 s', '2026-10-24T12:29:41+04:00'),
+        R(139, 40, 'packing-list', ...O, 1720, 590, 3880, 'SUCCESS', null, '2026-10-24T11:52:06+04:00'),
+        R(138, 40, 'itinerary-generate', ...O, 3050, 5480, 13260, 'SUCCESS', null, '2026-10-24T11:47:33+04:00'),
+        R(137, 39, 'day-regenerate', ...G, 5130, 1240, 4710, 'SUCCESS', null, '2026-10-24T10:15:27+04:00'),
+        R(136, 39, 'day-regenerate', ...G, 5100, 1320, 6020, 'INVALID_JSON', 'estimatedCost must be greater than or equal to 0', '2026-10-24T10:14:49+04:00'),
+        R(135, 39, 'packing-list', ...G, 1910, 640, 2950, 'SUCCESS', null, '2026-10-24T10:02:12+04:00'),
+        R(134, 38, 'itinerary-generate', ...G, 3240, 5810, 10380, 'SUCCESS', null, '2026-10-23T21:40:05+04:00'),
+        R(133, 38, 'itinerary-generate', ...G, 3240, null, 9870, 'ERROR', '502 Bad Gateway from provider', '2026-10-23T21:39:31+04:00'),
+        R(132, 37, 'day-regenerate', ...Q, 3980, 1050, 2640, 'SUCCESS', null, '2026-10-23T19:12:48+04:00'),
+        R(131, 37, 'itinerary-generate', ...Q, 2960, 4980, 4410, 'SUCCESS', null, '2026-10-23T19:05:16+04:00'),
+        R(130, 36, 'packing-list', ...G, 1780, 600, 3010, 'SUCCESS', null, '2026-10-23T17:44:59+04:00'),
+        R(129, 36, 'itinerary-generate', ...G, 3010, 5240, 9920, 'SUCCESS', null, '2026-10-23T17:38:22+04:00')
+      ]
+    };
+  }
+  renderVals() {
+    const s = this.state;
+    const p = this.props.prefix ?? '';
+    const view = s.retried ? 'data' : (this.props.view ?? 'data');
+    const st = this.stats();
+    const n0 = (v) => Math.round(v).toLocaleString('en-US');
+    const k = (v) => (v >= 1000 ? (v / 1000).toFixed(1) + 'k' : String(v));
+    const sec = (ms) => (ms / 1000).toFixed(1) + ' s';
+    const pct = (v) => (v * 100).toFixed(1) + '%';
+    const WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const STATUS = { SUCCESS: ['success', 'Success'], INVALID_JSON: ['invalid', 'Invalid JSON'], RATE_LIMITED: ['limited', 'Rate limited'], ERROR: ['error', 'Error'] };
+    const MAX = 25;
+    const byDay = st.byDay.map((d, i) => {
+      const day = Number(d.date.slice(8, 10));
+      const wd = WD[new Date(Date.UTC(2026, 9, day)).getUTCDay()];
+      return {
+        requests: d.requests, errors: d.errors, short: String(day), long: wd + ' ' + day + ' Oct',
+        okH: (100 * (d.requests - d.errors) / MAX).toFixed(1), errH: (100 * d.errors / MAX).toFixed(1),
+        sel: s.sel === i, pressed: s.sel === i ? 'true' : 'false', pick: () => this.setState({ sel: i }),
+        aria: wd + ' ' + day + ' October: ' + d.requests + ' requests, ' + d.errors + ' errors',
+        xCls: (i % 2 === 1 && i !== 13) ? 'tc-xl-odd' : ''
+      };
+    });
+    const maxTpl = Math.max(...st.byTemplate.map((b) => b.requests));
+    const recent = st.recent.map((r) => {
+      const st2 = STATUS[r.status];
+      const day = r.createdAt.slice(0, 10) === '2026-10-24' ? 'Today' : (Number(r.createdAt.slice(8, 10)) + ' Oct');
+      return {
+        time: day + ' ' + r.createdAt.slice(11, 16), trip: r.tripId == null ? 'Deleted' : ('#' + r.tripId), tripCls: r.tripId == null ? 'muted' : '',
+        templateName: r.templateName, templateVersion: r.templateVersion, provider: r.provider, model: r.model,
+        inTok: r.inputTokens == null ? '—' : n0(r.inputTokens), outTok: r.outputTokens == null ? '—' : n0(r.outputTokens),
+        inCls: r.inputTokens == null ? 'muted' : '', outCls: r.outputTokens == null ? 'muted' : '',
+        latency: r.latencyMs == null ? '—' : sec(r.latencyMs),
+        statusCls: st2[0], statusLabel: st2[1], hasErr: !!r.errorMessage, errorMessage: r.errorMessage || ''
+      };
+    });
+    return {
+      theme: this.props.theme ?? 'light',
+      links: { plan: p + 'Main.dc.html', trips: p + 'Trips.dc.html', stats: p + 'Stats.dc.html' },
+      hasData: view === 'data' && !s.refreshing, isEmpty: view === 'empty', isLoading: view === 'loading' || s.refreshing, isError: view === 'error',
+      spinCls: s.refreshing ? 'tc-spin' : '',
+      refresh: () => { this.setState({ refreshing: true }); clearTimeout(this.t); this.t = setTimeout(() => this.setState({ refreshing: false }), 1200); },
+      retry: () => this.setState({ retried: true }),
+      skel6: [1, 2, 3, 4, 5, 6],
+      t: {
+        total: n0(st.totalRequests), success: n0(st.successCount), successRate: pct(st.successCount / st.totalRequests),
+        errors: n0(st.errorCount), errorRate: pct(st.errorRate),
+        latency: sec(st.avgLatencyMs), latencyMs: n0(st.avgLatencyMs) + ' ms per call',
+        inTok: k(st.totalInputTokens), inTokFull: n0(st.totalInputTokens), outTok: k(st.totalOutputTokens), outTokFull: n0(st.totalOutputTokens)
+      },
+      byDay,
+      byTemplate: st.byTemplate.map((b) => ({ templateName: b.templateName, requests: n0(b.requests), w: Math.round(100 * b.requests / maxTpl), latency: sec(b.avgLatencyMs) })),
+      byProvider: st.byProvider.map((r) => ({ provider: r.provider, model: r.model, requests: n0(r.requests), inputTokens: n0(r.inputTokens), outputTokens: n0(r.outputTokens), latency: sec(r.avgLatencyMs) })),
+      recent
+    };
+  }
+}
+</script>
+</body>
+</html>

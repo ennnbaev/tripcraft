@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>New trip</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./tripcraft.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&amp;family=Rubik:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="tc-theme tc-page" data-theme="{{theme}}" style="font-family: Rubik, 'Segoe UI', system-ui, sans-serif; color: var(--ink); min-height: 100%">
+<svg class="tc-sprite" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></symbol>
+<symbol id="i-calendar" viewBox="0 0 24 24"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></symbol>
+<symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M12 5v14"></path></symbol>
+<symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"></path></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></symbol>
+<symbol id="i-languages" viewBox="0 0 24 24"><path d="m5 8 6 6"></path><path d="m4 14 6-6 2-3"></path><path d="M2 5h12"></path><path d="M7 2h1"></path><path d="m22 22-5-10-5 10"></path><path d="M14 18h6"></path></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M3 12h.01"></path><path d="M3 18h.01"></path><path d="M3 6h.01"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M8 6h13"></path></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></symbol>
+</defs></svg>
+
+<header class="tc-header">
+  <a class="tc-logo" href="{{links.plan}}" aria-label="TripCraft home"><span class="tc-logo__mark"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-pin"></use></svg></span><span class="tc-logo__text">Trip<b>Craft</b></span></a>
+  <nav class="tc-nav" aria-label="Main">
+    <a href="{{links.plan}}" aria-current="page"><svg class="tc-icon tc-icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-plus"></use></svg>New trip</a>
+    <a href="{{links.trips}}"><svg class="tc-icon tc-icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-list"></use></svg>My trips</a>
+    <a href="{{links.stats}}"><svg class="tc-icon tc-icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chart"></use></svg>AI stats</a>
+  </nav>
+</header>
+
+<main class="tc-hero tc-deep">
+  <div class="tc-hero__inner">
+    <div class="tc-hero__art" aria-hidden="true">
+      <i style="width: 88px; height: 120px; background: var(--coral)"></i>
+      <i style="width: 64px; height: 64px; background: var(--sun); border-radius: 50%"></i>
+      <i style="width: 112px; height: 160px; background: var(--mint)"></i>
+      <i style="width: 56px; height: 96px; background: var(--sky)"></i>
+    </div>
+    <h1>Where to <em>next?</em></h1>
+    <p class="tc-hero__lead">Tell us where, when and what you love. We'll plan the days for you, with times, places and estimated prices.</p>
+
+    <form class="tc-planner" aria-labelledby="planner-title" novalidate="novalidate" onSubmit="{{submit}}">
+      <h2 id="planner-title" class="tc-sr">New trip</h2>
+      <sc-if value="{{showSummary}}" hint-placeholder-val="{{ false }}">
+        <div class="tc-note tc-note--error" role="alert">
+          <svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-alert"></use></svg>
+          <div class="tc-note__body"><b>Check the highlighted fields</b>Nothing was sent yet. Fix them and try again.</div>
+        </div>
+      </sc-if>
+      <div class="tc-form">
+        <div class="tc-field tc-s6 {{f.destCls}}">
+          <label class="tc-field__label" for="f-dest">Destination</label>
+          <div class="tc-input">
+            <svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-pin"></use></svg>
+            <input id="f-dest" type="text" maxlength="255" placeholder="City or region, e.g. Tbilisi" value="{{dest}}" onChange="{{onDest}}" aria-invalid="{{f.destInvalid}}" aria-describedby="f-dest-msg">
+          </div>
+          <sc-if value="{{f.hasDest}}" hint-placeholder-val="{{ false }}"><span class="tc-field__error" id="f-dest-msg"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-alert"></use></svg>{{f.dest}}</span></sc-if>
+        </div>
+        <div class="tc-field tc-s3 {{f.startCls}}">
+          <label class="tc-field__label" for="f-start">Start date</label>
+          <div class="tc-input">
+            <input id="f-start" type="date" min="2026-10-24" value="{{start}}" onChange="{{onStart}}" aria-invalid="{{f.startInvalid}}" aria-describedby="f-start-msg">
+          </div>
+          <sc-if value="{{f.hasStart}}" hint-placeholder-val="{{ false }}"><span class="tc-field__error" id="f-start-msg"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-alert"></use></svg>{{f.start}}</span></sc-if>
+        </div>
+        <div class="tc-field tc-s3 {{f.endCls}}">
+          <label class="tc-field__label" for="f-end">End date</label>
+          <div class="tc-input">
+            <input id="f-end" type="date" min="{{start}}" value="{{end}}" onChange="{{onEnd}}" aria-invalid="{{f.endInvalid}}" aria-describedby="f-end-msg">
+          </div>
+          <sc-if value="{{f.hasEnd}}" hint-placeholder-val="{{ false }}"><span class="tc-field__error" id="f-end-msg"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-alert"></use></svg>{{f.end}}</span></sc-if>
+          <sc-if value="{{f.noEnd}}" hint-placeholder-val="{{ true }}"><span class="tc-field__help" id="f-end-msg"><span>{{tripLen}}</span><span>Up to 14 days</span></span></sc-if>
+        </div>
+
+        <div class="tc-field tc-s3">
+          <span class="tc-field__label" id="f-trav-l">Travelers</span>
+          <div class="tc-stepper" role="group" aria-labelledby="f-trav-l">
+            <button type="button" aria-label="Fewer travelers" disabled="{{tMinDis}}" onClick="{{dec}}"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-minus"></use></svg></button>
+            <output aria-live="polite">{{travelersLabel}}</output>
+            <button type="button" aria-label="More travelers" disabled="{{tMaxDis}}" onClick="{{inc}}"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-plus"></use></svg></button>
+          </div>
+          <span class="tc-field__help"><span>1 to 10 people</span></span>
+        </div>
+        <div class="tc-field tc-s5">
+          <span class="tc-field__label" id="f-budget-l">Budget</span>
+          <div class="tc-seg" role="radiogroup" aria-labelledby="f-budget-l">
+            <sc-for list="{{budgetOpts}}" as="o" hint-placeholder-count="3">
+              <button type="button" role="radio" aria-checked="{{o.checked}}" onClick="{{o.pick}}">{{o.label}}</button>
+            </sc-for>
+          </div>
+          <span class="tc-seg__hint">{{budgetHint}}</span>
+        </div>
+        <div class="tc-field tc-s4">
+          <span class="tc-field__label" id="f-pace-l">Pace</span>
+          <div class="tc-seg" role="radiogroup" aria-labelledby="f-pace-l">
+            <sc-for list="{{paceOpts}}" as="o" hint-placeholder-count="3">
+              <button type="button" role="radio" aria-checked="{{o.checked}}" onClick="{{o.pick}}">{{o.label}}</button>
+            </sc-for>
+          </div>
+          <span class="tc-seg__hint">{{paceHint}}</span>
+        </div>
+
+        <div class="tc-field tc-s12 {{f.intCls}}" role="group" aria-labelledby="f-int-l">
+          <span class="tc-field__label" id="f-int-l">Interests <small>Pick at least one</small></span>
+          <div class="tc-chips">
+            <sc-for list="{{chips}}" as="c" hint-placeholder-count="8">
+              <button type="button" class="tc-chip" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}">
+                <sc-if value="{{c.sel}}" hint-placeholder-val="{{ false }}"><svg class="tc-icon tc-check-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-check"></use></svg></sc-if>
+                <sc-if value="{{c.unsel}}" hint-placeholder-val="{{ true }}"><span class="tc-dot tc-bg--{{c.cat}}"></span></sc-if>
+                {{c.label}}
+              </button>
+            </sc-for>
+          </div>
+          <sc-if value="{{f.hasInt}}" hint-placeholder-val="{{ false }}"><span class="tc-field__error"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-alert"></use></svg>{{f.int}}</span></sc-if>
+        </div>
+
+        <div class="tc-field tc-s8">
+          <label class="tc-field__label" for="f-notes">Notes <small>Optional</small></label>
+          <div class="tc-input tc-input--area">
+            <textarea id="f-notes" maxlength="500" rows="3" placeholder="Anything we should know? Dietary needs, must-sees, mobility." value="{{notes}}" onChange="{{onNotes}}" aria-describedby="f-notes-count"></textarea>
+          </div>
+          <span class="tc-field__help" id="f-notes-count"><span>We pass this to the planner as is.</span><span>{{notesCount}} / 500</span></span>
+        </div>
+        <div class="tc-field tc-s4">
+          <label class="tc-field__label" for="f-lang">Itinerary language</label>
+          <div class="tc-input">
+            <svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-languages"></use></svg>
+            <input id="f-lang" type="text" maxlength="30" placeholder="English" value="{{language}}" onChange="{{onLang}}" aria-describedby="f-lang-help">
+          </div>
+          <span class="tc-field__help" id="f-lang-help"><span>The app stays in English. Only the plan is translated.</span></span>
+        </div>
+      </div>
+
+      <div class="tc-planner__foot">
+        <p><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-sparkles"></use></svg>We'll plan {{summary}}. It usually takes 5–30 seconds.</p>
+        <sc-if value="{{valid}}" hint-placeholder-val="{{ true }}">
+          <a class="tc-btn tc-btn--primary" href="{{links.gen}}"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-sparkles"></use></svg>Plan my trip</a>
+        </sc-if>
+        <sc-if value="{{invalid}}" hint-placeholder-val="{{ false }}">
+          <button type="submit" class="tc-btn tc-btn--primary"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-sparkles"></use></svg>Plan my trip</button>
+        </sc-if>
+      </div>
+    </form>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"prefix":{"editor":null,"default":""},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      dest: 'Tbilisi, Georgia', start: '2026-11-10', end: '2026-11-12', travelers: 2,
+      budget: 'MEDIUM', pace: 'BALANCED', interests: ['FOOD', 'HISTORY'],
+      notes: 'First time in Georgia. We love wine bars and long lunches.', language: 'English', submitted: false
+    };
+  }
+  renderVals() {
+    const s = this.state;
+    const p = this.props.prefix ?? '';
+    const TODAY = '2026-10-24';
+    const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const parse = (d) => { const [y, m, dd] = d.split('-').map(Number); return { y, m, d: dd, t: Date.UTC(y, m - 1, dd) }; };
+    const okDate = (d) => /^\d{4}-\d{2}-\d{2}$/.test(d || '');
+    let len = 0, range = '';
+    if (okDate(s.start) && okDate(s.end)) {
+      const a = parse(s.start), b = parse(s.end);
+      len = Math.round((b.t - a.t) / 86400000) + 1;
+      if (a.m === b.m && a.y === b.y) range = a.d + '–' + b.d + ' ' + MON[b.m - 1] + ' ' + b.y;
+      else range = a.d + ' ' + MON[a.m - 1] + ' – ' + b.d + ' ' + MON[b.m - 1] + ' ' + b.y;
+    }
+    const e = {};
+    if (!s.dest.trim()) e.dest = 'Enter where you are going.';
+    if (!okDate(s.start)) e.start = 'Pick a start date.';
+    else if (s.start < TODAY) e.start = 'Pick a start date from today on.';
+    if (!okDate(s.end)) e.end = 'Pick an end date.';
+    else if (okDate(s.start) && s.end < s.start) e.end = 'The end date can’t be before the start date.';
+    else if (len > 14) e.end = 'Trips can be up to 14 days. This one is ' + len + ' days.';
+    if (!s.interests.length) e.int = 'Pick at least one interest.';
+    const valid = Object.keys(e).length === 0;
+    const show = (k) => s.submitted && !!e[k];
+    const f = {
+      dest: e.dest || '', hasDest: show('dest'), destCls: show('dest') ? 'tc-field--error' : '', destInvalid: show('dest') ? 'true' : 'false',
+      start: e.start || '', hasStart: show('start'), startCls: show('start') ? 'tc-field--error' : '', startInvalid: show('start') ? 'true' : 'false',
+      end: e.end || '', hasEnd: show('end'), noEnd: !show('end'), endCls: show('end') ? 'tc-field--error' : '', endInvalid: show('end') ? 'true' : 'false',
+      int: e.int || '', hasInt: show('int'), intCls: show('int') ? 'tc-field--error' : ''
+    };
+    const budgets = [['ECONOMY', 'Economy', 'Street food, public transport and free sights.'], ['MEDIUM', 'Medium', 'A mix of cafés, restaurants and paid sights.'], ['PREMIUM', 'Premium', 'Top restaurants, taxis and guided tours.']];
+    const paces = [['RELAXED', 'Relaxed', '2–3 things a day, long breaks.'], ['BALANCED', 'Balanced', '3–5 things a day.'], ['ACTIVE', 'Active', '5–8 things a day, early starts.']];
+    const INTS = [['FOOD', 'Food', 'food'], ['MUSEUMS', 'Museums', 'museums'], ['NATURE', 'Nature', 'nature'], ['NIGHTLIFE', 'Nightlife', 'nightlife'], ['SHOPPING', 'Shopping', 'shopping'], ['HISTORY', 'History', 'history'], ['ART', 'Art', 'art'], ['SPORT', 'Sport', 'sport']];
+    const toggle = (k) => () => {
+      const has = this.state.interests.includes(k);
+      this.setState({ interests: has ? this.state.interests.filter((x) => x !== k) : this.state.interests.concat(k) });
+    };
+    const destShort = s.dest.split(',')[0].trim();
+    const summary = (len > 0 && len <= 14 && destShort) ? (len + (len === 1 ? ' day' : ' days') + ' in ' + destShort) : 'your days';
+    return {
+      theme: this.props.theme ?? 'light',
+      links: { plan: p + 'Main.dc.html', gen: p + 'Generating.dc.html', trips: p + 'Trips.dc.html', stats: p + 'Stats.dc.html' },
+      dest: s.dest, start: s.start, end: s.end, notes: s.notes, language: s.language,
+      onDest: (ev) => this.setState({ dest: ev.target.value }),
+      onStart: (ev) => this.setState({ start: ev.target.value }),
+      onEnd: (ev) => this.setState({ end: ev.target.value }),
+      onNotes: (ev) => this.setState({ notes: ev.target.value.slice(0, 500) }),
+      onLang: (ev) => this.setState({ language: ev.target.value.slice(0, 30) }),
+      notesCount: s.notes.length,
+      tripLen: (len > 0 && range) ? (len + (len === 1 ? ' day' : ' days') + ' · ' + range) : 'Choose your dates',
+      travelersLabel: s.travelers + (s.travelers === 1 ? ' traveler' : ' travelers'),
+      tMinDis: s.travelers <= 1, tMaxDis: s.travelers >= 10,
+      dec: () => this.setState({ travelers: Math.max(1, this.state.travelers - 1) }),
+      inc: () => this.setState({ travelers: Math.min(10, this.state.travelers + 1) }),
+      budgetOpts: budgets.map(([k, l]) => ({ label: l, checked: s.budget === k ? 'true' : 'false', pick: () => this.setState({ budget: k }) })),
+      budgetHint: budgets.find((b) => b[0] === s.budget)[2],
+      paceOpts: paces.map(([k, l]) => ({ label: l, checked: s.pace === k ? 'true' : 'false', pick: () => this.setState({ pace: k }) })),
+      paceHint: paces.find((b) => b[0] === s.pace)[2],
+      chips: INTS.map(([k, l, c]) => { const sel = s.interests.includes(k); return { label: l, cat: c, sel, unsel: !sel, pressed: sel ? 'true' : 'false', pick: toggle(k) }; }),
+      f, valid, invalid: !valid, showSummary: s.submitted && !valid, summary,
+      submit: (ev) => { if (ev && ev.preventDefault) ev.preventDefault(); this.setState({ submitted: true }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

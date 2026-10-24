@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AI usage stats · mobile</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./tripcraft.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&amp;family=Rubik:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="width: 390px; min-height: 2900px; background: #f1f8fa; font-family: Rubik, 'Segoe UI', system-ui, sans-serif; color: #0f3e4a">
+<dc-import name="Stats" prefix="M-" theme="{{theme}}" view="{{view}}" hint-size="390px,2900px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"view":{"editor":"enum","options":["data","empty","loading","error"],"default":"data"},"$preview":{"width":390,"height":2900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { theme: this.props.theme ?? 'light', view: this.props.view ?? 'data' };
+  }
+}
+</script>
+</body>
+</html>

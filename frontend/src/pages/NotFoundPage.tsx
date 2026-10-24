@@ -7,7 +7,7 @@ export default function NotFoundPage({ what = 'page' }: { what?: string }) {
       title={`This ${what} doesn't exist`}
       text="It may have been deleted, or the link is wrong."
       action={
-        <Link to="/trips" className="btn-primary">
+        <Link to="/trips" className="tc-btn tc-btn--primary">
           Go to my trips
         </Link>
       }

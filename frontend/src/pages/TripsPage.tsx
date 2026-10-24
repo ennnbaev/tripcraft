@@ -24,7 +24,7 @@ export default function TripsPage() {
           <h1 className="text-3xl font-bold tracking-tight">My trips</h1>
           <p className="mt-1 text-slate-600">Saved itineraries, newest first.</p>
         </div>
-        <Link to="/" className="btn-primary">
+        <Link to="/" className="tc-btn tc-btn--primary">
           + New trip
         </Link>
       </div>
@@ -45,7 +45,7 @@ export default function TripsPage() {
             title="No trips yet"
             text="Plan your first trip and it will show up here."
             action={
-              <Link to="/" className="btn-primary">
+              <Link to="/" className="tc-btn tc-btn--primary">
                 Plan a trip
               </Link>
             }
@@ -66,12 +66,12 @@ export default function TripsPage() {
                   <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
                     <span className="text-xs text-slate-500">Created {formatDateTime(trip.createdAt)}</span>
                     <div className="flex gap-1">
-                      <Link to={`/trips/${trip.id}`} className="btn-ghost">
+                      <Link to={`/trips/${trip.id}`} className="tc-btn tc-btn--ghost tc-btn--sm">
                         Open
                       </Link>
                       <button
                         type="button"
-                        className="btn-ghost text-red-600 hover:bg-red-50 hover:text-red-700"
+                        className="tc-btn tc-btn--ghost tc-btn--sm text-red-600 hover:bg-red-50 hover:text-red-700"
                         onClick={() => onDelete(trip)}
                         disabled={deleting}
                       >

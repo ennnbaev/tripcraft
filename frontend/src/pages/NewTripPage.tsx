@@ -211,7 +211,7 @@ export default function NewTripPage() {
           </Alert>
         )}
 
-        <button type="submit" className="btn-primary w-full py-3 text-base" disabled={busy}>
+        <button type="submit" className="tc-btn tc-btn--primary w-full py-3 text-base" disabled={busy}>
           {busy ? (
             <>
               <Spinner className="h-4 w-4" /> Generating…

@@ -1,18 +1,51 @@
+import { CircleAlert } from 'lucide-react'
 import type { ReactNode } from 'react'
 
-type Props = { label: string; htmlFor?: string; error?: string; hint?: string; children: ReactNode }
+type Props = {
+  label: string
+  htmlFor?: string
+  /** small muted text after the label, e.g. "optional" */
+  labelNote?: string
+  error?: string
+  /** helper text under the control; replaced by the error when there is one */
+  hint?: ReactNode
+  /** right-aligned helper, e.g. a character counter; stays visible with an error */
+  counter?: ReactNode
+  className?: string
+  children: ReactNode
+}
 
-export default function Field({ label, htmlFor, error, hint, children }: Props) {
+export default function Field({ label, htmlFor, labelNote, error, hint, counter, className = '', children }: Props) {
+  const labelContent = (
+    <>
+      {label}
+      {labelNote && <small>{labelNote}</small>}
+    </>
+  )
   return (
-    <div>
-      <label htmlFor={htmlFor} className="mb-1.5 block text-sm font-medium text-slate-700">
-        {label}
-      </label>
+    <div className={`tc-field ${error ? 'tc-field--error' : ''} ${className}`}>
+      {htmlFor ? (
+        <label htmlFor={htmlFor} className="tc-field__label">
+          {labelContent}
+        </label>
+      ) : (
+        <span className="tc-field__label">{labelContent}</span>
+      )}
       {children}
       {error ? (
-        <p className="mt-1 text-sm text-red-600">{error}</p>
+        <div className="tc-field__help">
+          <p className="tc-field__error" role="alert">
+            <CircleAlert size={14} aria-hidden /> {error}
+          </p>
+          {counter && <span>{counter}</span>}
+        </div>
       ) : (
-        hint && <p className="mt-1 text-xs text-slate-500">{hint}</p>
+        (hint || counter) && (
+          <p className="tc-field__help">
+            <span>{hint}</span>
+            {counter && <span>{counter}</span>}
+          </p>
+        )
       )}
     </div>
   )

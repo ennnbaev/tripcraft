@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Generating your trip</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./tripcraft.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&amp;family=Rubik:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="tc-theme tc-page" data-theme="{{theme}}" style="font-family: Rubik, 'Segoe UI', system-ui, sans-serif; color: var(--ink); min-height: 100%">
+<svg class="tc-sprite" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></symbol>
+<symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M12 5v14"></path></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></symbol>
+<symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></symbol>
+<symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></symbol>
+<symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M3 12h.01"></path><path d="M3 18h.01"></path><path d="M3 6h.01"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M8 6h13"></path></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></symbol>
+</defs></svg>
+
+<header class="tc-header">
+  <a class="tc-logo" href="{{links.plan}}" aria-label="TripCraft home"><span class="tc-logo__mark"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-pin"></use></svg></span><span class="tc-logo__text">Trip<b>Craft</b></span></a>
+  <nav class="tc-nav" aria-label="Main">
+    <a href="{{links.plan}}" aria-current="page"><svg class="tc-icon tc-icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-plus"></use></svg>New trip</a>
+    <a href="{{links.trips}}"><svg class="tc-icon tc-icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-list"></use></svg>My trips</a>
+    <a href="{{links.stats}}"><svg class="tc-icon tc-icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chart"></use></svg>AI stats</a>
+  </nav>
+</header>
+
+<main class="tc-wrap" style="padding-top: 64px">
+  <sc-if value="{{running}}" hint-placeholder-val="{{ true }}">
+    <section class="tc-loading" aria-live="polite" aria-busy="true">
+      <div class="tc-orbit" aria-hidden="true"><i></i><i></i><i></i><b><svg class="tc-icon" viewBox="0 0 24 24"><use href="#i-sparkles"></use></svg></b></div>
+      <span class="tc-ai"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-sparkles"></use></svg>AI is planning</span>
+      <h2>Planning 3 days in Tbilisi</h2>
+      <p>Tbilisi, Georgia · 10–12 Nov 2026 · 2 travelers · Medium budget · Food, History</p>
+      <div class="tc-progress" role="progressbar" aria-label="Planning progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{pct}}"><i style="width: {{pct}}%"></i></div>
+      <div class="tc-progressmeta"><span>{{elapsedLabel}}</span><span>Usually 5–30 seconds</span></div>
+      <ul class="tc-steps">
+        <sc-for list="{{steps}}" as="st" hint-placeholder-count="5">
+          <li data-state="{{st.state}}">
+            <sc-if value="{{st.done}}" hint-placeholder-val="{{ false }}"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-check-circle"></use></svg></sc-if>
+            <sc-if value="{{st.active}}" hint-placeholder-val="{{ false }}"><svg class="tc-icon tc-spin" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-refresh"></use></svg></sc-if>
+            <sc-if value="{{st.todo}}" hint-placeholder-val="{{ true }}"><span class="tc-steps__ring" aria-hidden="true"></span></sc-if>
+            {{st.label}}
+          </li>
+        </sc-for>
+      </ul>
+      <p>You can keep this tab open. Your trip is saved as soon as it is ready.</p>
+      <a class="tc-btn tc-btn--ghost tc-btn--sm" href="{{links.plan}}">Cancel</a>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{done}}" hint-placeholder-val="{{ false }}">
+    <section class="tc-loading" aria-live="polite">
+      <div class="tc-packempty__ic" style="background: var(--mint-tint); color: var(--mint-ink)"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-check"></use></svg></div>
+      <h2>Your trip is ready</h2>
+      <p>3 days, 16 places and an estimated 775 GEL ≈ $287 for 2 travelers. Took {{elapsedShort}}.</p>
+      <a class="tc-btn tc-btn--primary" href="{{links.trip}}">Open itinerary<svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow-right"></use></svg></a>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{failed}}" hint-placeholder-val="{{ false }}">
+    <section class="tc-loading" role="alert">
+      <div class="tc-packempty__ic" style="background: var(--danger-tint); color: var(--danger-ink)"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-alert"></use></svg></div>
+      <h2>{{err.title}}</h2>
+      <p>{{err.body}}</p>
+      <div class="tc-note tc-note--info" style="width: 100%; text-align: left">
+        <svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-clock"></use></svg>
+        <div class="tc-note__body">No trip was created. Your answers in the form are kept.</div>
+      </div>
+      <div class="tc-note__actions" style="justify-content: center">
+        <button type="button" class="tc-btn tc-btn--primary" onClick="{{retry}}"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-refresh"></use></svg>Try again</button>
+        <a class="tc-btn tc-btn--secondary" href="{{links.plan}}"><svg class="tc-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow-left"></use></svg>Edit trip</a>
+      </div>
+      <p style="font-size: 12px; line-height: 16px">{{err.code}}</p>
+    </section>
+  </sc-if>
+
+  <div class="tc-skelgrid" aria-hidden="true">
+    <sc-for list="{{skelDays}}" as="d" hint-placeholder-count="3">
+      <div class="tc-skelday">
+        <div style="display: flex; gap: 12px; align-items: center">
+          <div class="tc-skel" style="width: 48px; height: 48px; border-radius: 10px"></div>
+          <div style="flex: 1; display: grid; gap: 6px"><div class="tc-skel" style="height: 16px; width: 70%"></div><div class="tc-skel" style="height: 12px; width: 45%"></div></div>
+        </div>
+        <sc-for list="{{d.rows}}" as="r" hint-placeholder-count="3">
+          <div class="tc-skelcard">
+            <div class="tc-skel" style="width: 72px; height: 72px; border-radius: 12px"></div>
+            <div style="display: grid; gap: 8px; align-content: center"><div class="tc-skel" style="height: 12px; width: 40%"></div><div class="tc-skel" style="height: 16px; width: 80%"></div><div class="tc-skel" style="height: 12px; width: 60%"></div></div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-for>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"outcome":{"editor":"enum","options":["success","rate-limited (429)","AI error (502)"],"default":"success"},"prefix":{"editor":null,"default":""},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = { elapsed: 0, status: 'running' };
+  }
+  componentDidMount() { this.start(); }
+  componentWillUnmount() { clearInterval(this.timer); }
+  start() {
+    clearInterval(this.timer);
+    this.setState({ elapsed: 0, status: 'running' });
+    this.timer = setInterval(() => {
+      const outcome = this.props.outcome ?? 'success';
+      const next = this.state.elapsed + 200;
+      if (outcome !== 'success' && next >= 4200) { clearInterval(this.timer); this.setState({ elapsed: next, status: 'error' }); return; }
+      if (outcome === 'success' && next >= 9400) { clearInterval(this.timer); this.setState({ elapsed: next, status: 'done' }); return; }
+      this.setState({ elapsed: next });
+    }, 200);
+  }
+  renderVals() {
+    const p = this.props.prefix ?? '';
+    const outcome = this.props.outcome ?? 'success';
+    const s = this.state;
+    const labels = ['Reading your preferences', 'Choosing places for each day', 'Checking timing and distances', 'Estimating prices in GEL and USD', 'Writing tips for your trip'];
+    const at = [0, 1200, 3400, 5800, 7800];
+    const steps = labels.map((label, i) => {
+      const doneStep = s.elapsed >= (at[i + 1] ?? 9200);
+      const active = !doneStep && s.elapsed >= at[i];
+      return { label, done: doneStep, active, todo: !doneStep && !active, state: doneStep ? 'done' : (active ? 'active' : 'todo') };
+    });
+    const pct = Math.min(96, Math.round(100 * (1 - Math.exp(-s.elapsed / 4200))));
+    const secs = Math.floor(s.elapsed / 1000);
+    const err = outcome.indexOf('429') >= 0
+      ? { title: 'The free AI limit is reached', body: 'Please try again in a minute.', code: 'Error 429 · AI free tier limit reached' }
+      : { title: 'We couldn’t build a valid plan', body: 'The AI answer didn’t pass our checks, even after a retry. Please try again.', code: 'Error 502 · invalid AI response after retry' };
+    return {
+      theme: this.props.theme ?? 'light',
+      links: { plan: p + 'Main.dc.html', trip: p + 'Trip.dc.html', trips: p + 'Trips.dc.html', stats: p + 'Stats.dc.html' },
+      running: s.status === 'running', done: s.status === 'done', failed: s.status === 'error',
+      steps, pct, elapsedLabel: secs + ' s elapsed', elapsedShort: Math.max(1, secs) + ' seconds', err,
+      retry: () => this.start(),
+      skelDays: [{ rows: [1, 2, 3] }, { rows: [1, 2, 3] }, { rows: [1, 2, 3] }]
+    };
+  }
+}
+</script>
+</body>
+</html>

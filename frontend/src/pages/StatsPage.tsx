@@ -22,7 +22,7 @@ export default function StatsPage() {
           <h1 className="text-3xl font-bold tracking-tight">AI usage</h1>
           <p className="mt-1 text-slate-600">Every LLM call is logged with tokens, latency and status.</p>
         </div>
-        <button type="button" className="btn-secondary" onClick={() => refetch()} disabled={isFetching}>
+        <button type="button" className="tc-btn tc-btn--secondary" onClick={() => refetch()} disabled={isFetching}>
           {isFetching ? 'Refreshing…' : 'Refresh'}
         </button>
       </div>
@@ -37,7 +37,7 @@ export default function StatsPage() {
             title="No AI requests yet"
             text="Generate a trip and its AI calls will show up here."
             action={
-              <Link to="/" className="btn-primary">
+              <Link to="/" className="tc-btn tc-btn--primary">
                 Plan a trip
               </Link>
             }
